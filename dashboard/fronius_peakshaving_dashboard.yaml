@@ -1,0 +1,235 @@
+# Dashboard for control and testing of the Fronius peak shaving package
+# Dashboard zur Steuerung und zum Testen des Fronius-Peakshaving-Packages
+#
+# Install: Settings -> Dashboards -> add dashboard -> open it -> three dots -> "Edit"
+#          -> three dots -> "Raw configuration editor" -> paste this file.
+# Einbinden: Einstellungen -> Dashboards -> Dashboard hinzufügen -> öffnen -> drei Punkte
+#          -> "Bearbeiten" -> drei Punkte -> "Raw-Konfigurationseditor" -> Datei einfügen.
+#
+# ADJUST / ANPASSEN (entities of the author's system / Entitäten der Anlage des Autors):
+#   number.symo_gen24_8_0_storage_ablaufzeit_batterie_rate   "Battery rate revert time"
+#   select.symo_gen24_8_0_storage_batterie_betriebsart        battery mode
+#   number.symo_gen24_8_0_storage_batterie_netzladeleistung   grid charge power
+#   number.symo_gen24_8_0_storage_batterie_entladelimit       discharge limit
+#   sensor.sunspecfronius_storage_chastate                    battery SoC
+#   sensor.sunspecfronius_sm_meter_three_phase_wye_watts      grid power
+#   sensor.sunspecfronius_mppt_pv_leistung                    PV power
+#   sensor.sunspecfronius_mppt_module_2_dc_power / _3_        battery charge / discharge power
+#   sensor.leistung_verbrauch                                 house consumption (own template sensor, not part of the package)
+#   sensor.byd_batterie_state_of_health                       battery state of health (BYD specific, optional: delete the tile)
+# The input_*/sensor.fronius_* entities come from the package and need no change.
+# Tile and graph titles are German; change the "name:" values as you like.
+
+views:
+  - type: sections
+    sections:
+      - type: grid
+        cards:
+          - type: heading
+            heading: Steuerung
+            heading_style: title
+            icon: mdi:toggle-switch
+          - type: tile
+            entity: input_boolean.fronius_peakshaving
+            name: Regelung
+            vertical: false
+            features:
+              - type: toggle
+            features_position: bottom
+          - type: tile
+            entity: input_boolean.fronius_netzladen_erlaubt
+            name: Netzladen
+            vertical: false
+            features:
+              - type: toggle
+            features_position: bottom
+          - type: tile
+            entity: input_select.fronius_leerlauf_modus
+            name: Betriebsmodus
+            vertical: false
+            features:
+              - type: select-options
+            features_position: bottom
+        column_span: 1
+      - type: grid
+        cards:
+          - type: heading
+            heading: Konfiguration
+            heading_style: title
+            icon: mdi:dip-switch
+          - type: tile
+            entity: input_number.fronius_bezug_limit_wh
+            name: Max. 15 min Bezug
+            vertical: false
+            features:
+              - type: numeric-input
+            features_position: bottom
+          - type: tile
+            entity: input_number.fronius_bezug_reserve_wh
+            name: Reserve
+            vertical: false
+            features:
+              - type: numeric-input
+            features_position: bottom
+          - type: tile
+            entity: input_number.fronius_min_soc
+            name: SOC min.
+            vertical: false
+            features:
+              - type: numeric-input
+            features_position: bottom
+          - type: tile
+            entity: input_number.fronius_reserve_soc
+            name: 'Reserve SOC: min SOC für Automatik'
+            vertical: false
+            features:
+              - type: numeric-input
+            features_position: bottom
+          - type: tile
+            entity: input_number.fronius_anfang_gewicht
+            name: 15min Anfangsgewichtung
+            vertical: false
+            features:
+              - type: numeric-input
+            features_position: bottom
+          - type: tile
+            entity: input_number.fronius_start_soc
+            name: Start SOC Netzladen
+            vertical: false
+            features:
+              - type: numeric-input
+            features_position: bottom
+          - type: tile
+            entity: input_number.fronius_ziel_soc
+            name: Ziel SOC Netzladen
+            vertical: false
+            features:
+              - type: numeric-input
+            features_position: bottom
+          - type: tile
+            grid_options:
+              columns: 6
+              rows: 2
+            entity: number.symo_gen24_8_0_storage_ablaufzeit_batterie_rate
+            name: Batterie reset (Soll 60s)
+            vertical: false
+            features_position: bottom
+        column_span: 2
+      - type: grid
+        cards:
+          - type: heading
+            heading: Zustandsverlauf
+            heading_style: title
+            icon: mdi:chart-bell-curve-cumulative
+          - type: history-graph
+            grid_options:
+              columns: 24
+              rows: auto
+            entities:
+              - entity: sensor.fronius_bezug_viertelstunde
+                name: Netzbezug Viertelstunde
+              - entity: select.symo_gen24_8_0_storage_batterie_betriebsart
+                name: Bat Status
+              - entity: input_select.fronius_zustand
+                name: Regler Status
+              - entity: sensor.sunspecfronius_storage_chastate
+                name: SOC
+            hours_to_show: 1
+          - type: history-graph
+            grid_options:
+              columns: 24
+              rows: auto
+            entities:
+              - entity: sensor.sunspecfronius_sm_meter_three_phase_wye_watts
+                name: P_Netz
+                color: grey
+              - entity: sensor.leistung_verbrauch
+                name: P_Verbrauch
+                color: indigo
+              - entity: sensor.sunspecfronius_mppt_pv_leistung
+                name: P_PV
+                color: yellow
+              - entity: sensor.sunspecfronius_mppt_module_3_dc_power
+                name: P_Bat_Ent
+                color: green
+              - entity: sensor.fronius_bedarf_energie
+                color: pink
+            hours_to_show: 1
+            expand_legend: false
+        column_span: 2
+      - type: grid
+        cards:
+          - type: heading
+            heading_style: title
+            heading: Zustände
+          - type: tile
+            entity: sensor.sunspecfronius_storage_chastate
+            icon: mdi:battery-70
+            vertical: false
+            features_position: bottom
+          - type: tile
+            entity: select.symo_gen24_8_0_storage_batterie_betriebsart
+          - type: tile
+            entity: sensor.sunspecfronius_mppt_module_2_dc_power
+            name: P Bat Lade
+            icon: mdi:battery-arrow-up-outline
+            vertical: false
+            features_position: bottom
+          - type: tile
+            entity: sensor.sunspecfronius_mppt_module_3_dc_power
+            name: P Bat Entlade
+            icon: mdi:battery-arrow-down-outline
+            vertical: false
+            features_position: bottom
+          - type: tile
+            entity: sensor.sunspecfronius_sm_meter_three_phase_wye_watts
+            name: Netzleistung
+            icon: mdi:transmission-tower-export
+            vertical: false
+            features_position: bottom
+          - type: tile
+            entity: sensor.sunspecfronius_mppt_pv_leistung
+            name: PV Leistung
+            vertical: false
+            features_position: bottom
+          - type: tile
+            entity: sensor.leistung_verbrauch
+            name: Verbrauch
+            vertical: false
+            features_position: bottom
+          - type: tile
+            entity: sensor.byd_batterie_state_of_health
+            name: SoH
+            icon: mdi:battery-heart-variant
+            vertical: false
+            features_position: bottom
+          - type: heading
+            heading_style: title
+            heading: Regelgrößen
+          - type: tile
+            entity: number.symo_gen24_8_0_storage_batterie_netzladeleistung
+            icon: mdi:battery-arrow-up
+            vertical: false
+            features_position: bottom
+          - type: tile
+            entity: number.symo_gen24_8_0_storage_batterie_entladelimit
+            vertical: false
+            features_position: bottom
+          - type: tile
+            entity: input_select.fronius_zustand
+            vertical: false
+            features_position: bottom
+          - type: tile
+            entity: input_boolean.fronius_ladephase
+          - type: tile
+            entity: sensor.fronius_bedarf_energie
+          - type: tile
+            entity: sensor.fronius_stat_entladen
+          - type: tile
+            entity: sensor.fronius_stat_bezug
+          - type: tile
+            entity: sensor.fronius_stat_laden
+          - type: tile
+            entity: sensor.fronius_batterie_ladeenergie
+          - type: tile
+            entity: sensor.fronius_batterie_entladeenergie
