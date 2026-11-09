@@ -53,6 +53,8 @@ Peak-based tariffs and import limits are defined in **energy per interval** (Wh 
 | Setup and verification | [setup](docs/en/setup.md) | [einrichtung](docs/de/einrichtung.md) |
 | Tuning and troubleshooting | [tuning-troubleshooting](docs/en/tuning-troubleshooting.md) | [feinabstimmung-fehlersuche](docs/de/feinabstimmung-fehlersuche.md) |
 
+A dashboard for control and testing is in [`dashboard/`](dashboard/fronius_peakshaving_dashboard.yaml).
+
 A small simulation of the quarter-hour logic is in [`simulation/sim_budget.py`](simulation/sim_budget.py).
 
 ## 🤖 Authorship

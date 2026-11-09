@@ -13,7 +13,7 @@
 | `laden_marge_w` | Variable in der Automation | Sicherheitsabstand zum Budget beim Netzladen (Standard 300 W) |
 | `laden_min_w` | Variable in der Automation | Mindest-Ladeleistung, um das Netzladen zu starten (Standard 300 W) |
 | `max_age` der Statistik-Sensoren | Statistik-Sensoren | 60 s = schnell. 90–120 s = ruhiger, aber träger |
-| Abfrageintervall von ha-sunspec2 | Integration | Kürzeres Intervall = aktuellere Zähler |
+| Abfrageintervall von ha-sunspec2 | Integration | Kürzeres Intervall = aktuellere Werte (der Autor nutzt 5 s) |
 
 Wird das Budget oft nicht ausgenutzt? `w0` senken (z. B. 0,5). Überschreitet der Bezug am Ende von Intervallen das Limit? `w0` Richtung 1 erhöhen oder die Reserve vergrößern.
 

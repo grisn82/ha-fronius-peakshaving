@@ -9,6 +9,8 @@
    - select "Batterie-Betriebsart" with the options `auto`, `discharge_limit`, `charge_from_grid`, `block_discharging`
    - number entities: discharge limit (W), grid charge power (W), max. charge power (`WChaMax`, W)
    - switch "Battery charging from grid allowed"
+   - **Add the inverter and the smart meter as two separate devices** in ha-sunspec2 (two integration entries). The inverter uses Modbus unit ID **1**, the smart meter unit ID **200**. These are the defaults; check them on your system.
+   - The author set the polling interval to **5 seconds**. A short interval gives fresher values; the package works with slower polling too (the Statistics window of 60 s then holds fewer samples).
 3. Turn off inverter charge schedules and the "Battery plan" entity of ha-sunspec2, otherwise they compete with this package.
 4. Set **"Battery rate revert time"** (e.g. 60 s). If Home Assistant stops sending, the inverter should fall back to automatic mode. The automation resends the mode every 10 s. Verify the fallback by a test, as the revert time display may reset itself to 0 on some setups.
 5. For grid charging: allow it in the inverter settings and turn on the ha-sunspec2 switch "Battery charging from grid allowed".
@@ -73,7 +75,11 @@ Note: the import counter appears in the file several times (utility_meter, Stati
 
 Choose the reserve SoC from your peaks: a short peak of a few hundred Wh needs only a few percent of the battery.
 
-## 6. Switch on
+## 6. Dashboard (optional)
+
+[`dashboard/fronius_peakshaving_dashboard.yaml`](../../dashboard/fronius_peakshaving_dashboard.yaml) is a dashboard for control and testing: switches (regulation, grid charging, idle mode), all configuration helpers, the state history and live values. It uses entities of the author's system; the entities to adjust are listed at the top of the file. Add a new dashboard, open the raw configuration editor and paste the file. `sensor.leistung_verbrauch` is the author's own consumption sensor and not part of the package; delete or replace that tile and graph line if you have no such sensor.
+
+## 7. Switch on
 
 1. Restart Home Assistant (or reload YAML configuration; the new `statistics` and `utility_meter` platforms need a restart).
 2. Watch `input_select.fronius_zustand` and the inverter mode with `Fronius: Bezugsbegrenzung aktiv` on.

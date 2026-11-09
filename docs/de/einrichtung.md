@@ -9,6 +9,8 @@
    - Select „Batterie-Betriebsart“ mit den Optionen `auto`, `discharge_limit`, `charge_from_grid`, `block_discharging`
    - Number-Entitäten: Entladelimit (W), Netzladeleistung (W), max. Ladeleistung (`WChaMax`, W)
    - Schalter „Batterieladen aus dem Netz erlaubt“
+   - **Wechselrichter und Smart Meter als zwei getrennte Geräte** in ha-sunspec2 einbinden (zwei Integrationseinträge). Der Wechselrichter hat die Modbus-Unit-ID **1**, der Smart Meter die Unit-ID **200**. Das sind die Standardwerte; auf der eigenen Anlage prüfen.
+   - Der Autor hat das Abfrageintervall auf **5 Sekunden** gesetzt. Ein kurzes Intervall liefert aktuellere Werte; das Package funktioniert auch mit langsamerer Abfrage (das 60-s-Statistikfenster enthält dann weniger Werte).
 3. Ladepläne des Wechselrichters und die Entität „Battery plan“ von ha-sunspec2 ausschalten, sonst konkurrieren sie mit diesem Package.
 4. **„Battery rate revert time“** setzen (z. B. 60 s). Sendet Home Assistant nicht mehr, soll der Wechselrichter in den Automatikmodus zurückfallen. Die Automation sendet den Modus alle 10 s neu. Den Rückfall durch einen Test prüfen, denn die Anzeige der Revert Time kann sich bei manchen Setups selbst auf 0 zurücksetzen.
 5. Für Netzladen: im Wechselrichter erlauben und den ha-sunspec2-Schalter „Batterieladen aus dem Netz erlaubt“ einschalten.
@@ -73,7 +75,11 @@ Hinweis: Der Bezugszähler kommt in der Datei mehrfach vor (utility_meter, Stati
 
 Den Reserve-SoC nach den eigenen Spitzen wählen: Eine kurze Spitze von einigen hundert Wh braucht nur wenige Prozent der Batterie.
 
-## 6. Einschalten
+## 6. Dashboard (optional)
+
+[`dashboard/fronius_peakshaving_dashboard.yaml`](../../dashboard/fronius_peakshaving_dashboard.yaml) ist ein Dashboard zum Steuern und Testen: Schalter (Regelung, Netzladen, Leerlaufmodus), alle Konfigurationshelfer, der Zustandsverlauf und Live-Werte. Es verwendet Entitäten der Anlage des Autors; die anzupassenden Entitäten stehen am Dateianfang. Neues Dashboard anlegen, den Raw-Konfigurationseditor öffnen und die Datei einfügen. `sensor.leistung_verbrauch` ist ein eigener Verbrauchssensor des Autors und nicht Teil des Packages; Kachel und Graphzeile löschen oder ersetzen, falls du keinen solchen Sensor hast.
+
+## 7. Einschalten
 
 1. Home Assistant neu starten (die neuen `statistics`- und `utility_meter`-Plattformen brauchen einen Neustart).
 2. Mit eingeschaltetem `Fronius: Bezugsbegrenzung aktiv` `input_select.fronius_zustand` und den Wechselrichtermodus beobachten.

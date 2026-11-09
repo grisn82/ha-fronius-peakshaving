@@ -13,7 +13,7 @@
 | `laden_marge_w` | automation variable | Safety margin to the budget while grid charging (default 300 W) |
 | `laden_min_w` | automation variable | Minimum charge power to start grid charging (default 300 W) |
 | `max_age` of the Statistics sensors | Statistics sensors | 60 s = quick. 90–120 s = calmer but slower to react |
-| Poll interval of ha-sunspec2 | integration | A shorter interval gives fresher counters |
+| Poll interval of ha-sunspec2 | integration | A shorter interval gives fresher values (the author uses 5 s) |
 
 Is the budget often unused? Lower `w0` (e.g. 0.5). Does the grid import exceed the limit at the end of intervals? Raise `w0` toward 1 or increase the reserve.
 
