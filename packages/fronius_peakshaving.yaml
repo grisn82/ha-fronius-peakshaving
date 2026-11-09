@@ -51,16 +51,20 @@
 #   number.symo_gen24_8_0_storage_batterie_ladeleistung_max      max battery power (WChaMax), W
 #   sensor.sunspecfronius_storage_chastate                       battery state of charge, %
 #   sensor.sunspecfronius_sm_meter_three_phase_wye_total_watt_hours_imported   grid import counter, Wh
-#   sensor.sunspecfronius_mppt_module_2_lifetime_energy          battery CHARGED energy counter, Wh
-#   sensor.sunspecfronius_mppt_module_3_lifetime_energy          battery DISCHARGED energy counter, Wh
+#   sensor.sunspecfronius_mppt_module_2_dc_power                 battery CHARGE power, W (positive while charging)
+#   sensor.sunspecfronius_mppt_module_3_dc_power                 battery DISCHARGE power, W (positive while discharging)
 #
-# The two battery counters are the lifetime energy of two DC channels. On the author's
-# system module 2 = charging and module 3 = discharging. THIS CAN DIFFER ON YOUR SYSTEM.
-# Swapped counters flip the sign of the battery share and break the whole regulation.
+# The two battery power sensors are the DC power of two channels. On the author's system
+# module 2 = charging and module 3 = discharging. THIS CAN DIFFER ON YOUR SYSTEM.
+# Swapped sensors flip the sign of the battery share and break the whole regulation.
+# The battery energy is NOT taken from the lifetime energy counters of the inverter: they
+# only update every ca. 5 minutes and produce false demand spikes. Instead the power is
+# integrated to Wh here (Integration sensors, updated every 10 s).
 # Check before enabling: sensor.fronius_bedarf_energie must match the real house demand
 # (consumption minus PV), with the battery idle as well as charging/discharging.
-# Counters in kWh instead of Wh? Then replace the factor 3600 in the demand sensor below
-# by 3600000 for the corresponding term (see comment there).
+# Grid import counter in kWh instead of Wh? Then replace the factor 3600 in the demand
+# sensor below by 3600000 for the import term (see comment there). The battery power
+# sensors must be in W.
 #
 # Do NOT rename the Statistics sensors and the template sensor ("Fronius Stat ...",
 # "Fronius Bedarf Energie"): their entity IDs are derived from the names and are
@@ -163,6 +167,26 @@ utility_meter:
 # Shorter = faster but less accurate; longer (90-120 s) = calmer but slower.
 # keep_last_sample: the last value is kept even if nothing was imported for a while.
 sensor:
+  # Battery energy by integrating the DC power (Wh). max_sub_interval makes the sensor
+  # update every 10 s even when the power stays constant.
+  - platform: integration
+    name: "Fronius Batterie Ladeenergie"
+    unique_id: fronius_batterie_ladeenergie
+    source: sensor.sunspecfronius_mppt_module_2_dc_power   # battery CHARGE power in W
+    unit_time: h
+    method: trapezoidal
+    round: 3
+    max_sub_interval:
+      seconds: 10
+  - platform: integration
+    name: "Fronius Batterie Entladeenergie"
+    unique_id: fronius_batterie_entladeenergie
+    source: sensor.sunspecfronius_mppt_module_3_dc_power   # battery DISCHARGE power in W
+    unit_time: h
+    method: trapezoidal
+    round: 3
+    max_sub_interval:
+      seconds: 10
   - platform: statistics
     name: "Fronius Stat Bezug"
     unique_id: fronius_stat_bezug
@@ -175,7 +199,7 @@ sensor:
   - platform: statistics
     name: "Fronius Stat Entladen"
     unique_id: fronius_stat_entladen
-    entity_id: sensor.sunspecfronius_mppt_module_3_lifetime_energy
+    entity_id: sensor.fronius_batterie_entladeenergie
     state_characteristic: change_second
     max_age:
       seconds: 60
@@ -184,7 +208,7 @@ sensor:
   - platform: statistics
     name: "Fronius Stat Laden"
     unique_id: fronius_stat_laden
-    entity_id: sensor.sunspecfronius_mppt_module_2_lifetime_energy
+    entity_id: sensor.fronius_batterie_ladeenergie
     state_characteristic: change_second
     max_age:
       seconds: 60
@@ -192,7 +216,7 @@ sensor:
     precision: 5
 
 # Demand without battery (house consumption minus PV) in W, from the energy mean of the
-# last ca. 60 s. To check: compare the value with the real house power.
+# last ca. 60 s (grid import counter + integrated battery power). To check: compare the value with the real house power.
 # Wh/s -> W: times 3600. (Counters in kWh: use 3600000 instead of 3600 for this term.)
 template:
   - sensor:
@@ -230,10 +254,10 @@ automation:
           ent_discharge_limit: number.symo_gen24_8_0_storage_batterie_entladelimit
           ent_grid_charge_power: number.symo_gen24_8_0_storage_batterie_netzladeleistung
           ent_wchamax: number.symo_gen24_8_0_storage_batterie_ladeleistung_max
-          # Energy counters (only used for the validity check; the means come from the Statistics sensors above)
+          # Counters (only used for the validity check; the means come from the Statistics sensors above)
           ent_cnt_import: sensor.sunspecfronius_sm_meter_three_phase_wye_total_watt_hours_imported
-          ent_cnt_charge: sensor.sunspecfronius_mppt_module_2_lifetime_energy
-          ent_cnt_discharge: sensor.sunspecfronius_mppt_module_3_lifetime_energy
+          ent_cnt_charge: sensor.fronius_batterie_ladeenergie
+          ent_cnt_discharge: sensor.fronius_batterie_entladeenergie
           # ---- Fine tuning ----
           laden_marge_w: 300    # safety margin to the budget when charging from the grid, W
           laden_min_w: 300      # minimum charge power to start grid charging, W

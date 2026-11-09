@@ -36,23 +36,25 @@ Replace these 8 IDs in the file (search & replace):
 | max. battery power (W) | `number.symo_gen24_8_0_storage_batterie_ladeleistung_max` |
 | battery SoC (%) | `sensor.sunspecfronius_storage_chastate` |
 | grid import counter (Wh) | `sensor.sunspecfronius_sm_meter_three_phase_wye_total_watt_hours_imported` |
-| battery **charged** energy (Wh) | `sensor.sunspecfronius_mppt_module_2_lifetime_energy` |
-| battery **discharged** energy (Wh) | `sensor.sunspecfronius_mppt_module_3_lifetime_energy` |
+| battery **charge** power (W) | `sensor.sunspecfronius_mppt_module_2_dc_power` |
+| battery **discharge** power (W) | `sensor.sunspecfronius_mppt_module_3_dc_power` |
 
-⚠️ The two battery counters are the lifetime energy of two DC channels (MPPT "modules"). On the author's system module 2 is the battery charge and module 3 the discharge. **On your system it may be the other way round.** Check by watching which counter rises while the battery charges or discharges.
+⚠️ The two battery sensors are the DC power of two channels (MPPT "modules"), in W and positive. On the author's system module 2 is the battery charge and module 3 the discharge. **On your system it may be the other way round.** Check by watching which sensor shows a value while the battery charges or discharges.
+
+The package integrates these powers to energy (`sensor.fronius_batterie_ladeenergie` / `..._entladeenergie`). The `lifetime_energy` counters of the same modules are deliberately **not** used: they update only every ca. 5 minutes and caused false demand spikes.
 
 Note: the import counter appears in the file several times (utility_meter, Statistics sensor, automation).
 
 ## 4. Verify before switching on
 
-1. Developer Tools → States: all three counters must be numbers and rise (grid import counter rises when you import; charge counter rises while charging; discharge counter while discharging).
+1. Developer Tools → States: the grid import counter must be a number and rise when you import. After a restart the integral sensors `sensor.fronius_batterie_ladeenergie` and `sensor.fronius_batterie_entladeenergie` start counting: the first rises while charging, the second while discharging.
 2. After a restart, wait 1–2 minutes. Then `sensor.fronius_bedarf_energie` must show the **house consumption minus PV** in watts. Compare with the real value in three situations:
    - battery idle
    - battery charging
    - battery discharging
 
    The value must be about the same in all three. If it jumps by twice the battery power when the battery changes direction, the charge and discharge counters are swapped.
-3. If your counters are in kWh instead of Wh, replace `3600` by `3600000` in the demand sensor.
+3. If your grid import counter is in kWh instead of Wh, replace `3600` by `3600000` for the import term in the demand sensor. The battery power sensors must be in W (with kW the integral would be in kWh).
 4. `sensor.fronius_bezug_viertelstunde` must reset at :00, :15, :30, :45 and count the import in Wh.
 
 ## 5. Start values

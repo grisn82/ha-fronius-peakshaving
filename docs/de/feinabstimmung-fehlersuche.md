@@ -23,7 +23,8 @@ Wird das Budget oft nicht ausgenutzt? `w0` senken (z. B. 0,5). Überschreitet de
 Einer dieser Werte fehlt oder ist `unavailable`: die Zähler, `sensor.fronius_bedarf_energie`, der SoC oder `WChaMax`. In den Entwicklerwerkzeugen prüfen. Nach einem Neustart 1–2 Minuten auf die Statistik-Sensoren warten.
 
 **`sensor.fronius_bedarf_energie` ist nicht verfügbar oder falsch**
-- Zähler vertauscht (geladen ↔ entladen): siehe [Einrichtung](einrichtung.md), Schritt 4.
+- Batteriesensoren vertauscht (Laden ↔ Entladen): siehe [Einrichtung](einrichtung.md), Schritt 4.
+- Bedarf ist meist 0 und zeigt alle paar Minuten kurz eine große Spitze: Es wurden die `lifetime_energy`-Zähler verwendet. Die integrierten Sensoren dieses Packages nutzen (Version 1.1.0 und neuer).
 - Zähler in kWh: `3600000` statt `3600` verwenden.
 - Statistik-Sensoren umbenannt: Ihre IDs müssen `sensor.fronius_stat_bezug`, `..._entladen`, `..._laden` lauten.
 

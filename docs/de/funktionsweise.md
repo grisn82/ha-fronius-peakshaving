@@ -15,7 +15,7 @@ Die Automation `Fronius: Netzbezug pro 15 min begrenzen` läuft alle 10 Sekunden
 
 ### Bedarf aus Energiezählern
 
-Drei Statistik-Sensoren berechnen `change_second` (Wh pro Sekunde) der Zähler für Netzbezug, Batterie entladen und Batterie geladen über ein 60-s-Fenster. Der Template-Sensor kombiniert sie:
+Die Batterieleistungssensoren werden zu Energie integriert (Integrationssensoren, alle 10 s aktualisiert). Drei Statistik-Sensoren berechnen dann `change_second` (Wh pro Sekunde) des Netzbezugszählers und der beiden integrierten Batterieenergien über ein 60-s-Fenster. (Die `lifetime_energy`-Zähler des Wechselrichters werden nicht verwendet: Sie aktualisieren sich nur etwa alle 5 Minuten.) Der Template-Sensor kombiniert sie:
 
 ```
 p_free = (Δbezug + Δentladen − Δgeladen) / Δt · 3600     [W]
@@ -91,7 +91,7 @@ Ein Entladelimit unter 10 W wird als `block_discharging` gesendet (ein 0-W-Limit
 
 ## Grenzen
 
-- Die Zähler sind DC-seitige Modulzähler und nicht perfekt synchron mit dem Netzzähler. Kleine Abweichungen deckt die Sicherheitsreserve ab.
+- Die Batterieenergie ist ein Integral DC-seitiger Leistungswerte, der Netzbezug kommt vom Zählerstand des Smart Meters; beide sind nicht perfekt synchron. Kleine Abweichungen deckt die Sicherheitsreserve ab.
 - Nach einem Neustart von Home Assistant brauchen die Statistik-Sensoren 1–2 Minuten, bis sie gefüllt sind. Bis dahin kann der Zustand `fehler` (= `auto`) sein.
 - Ein lockerer Start kann das Limit überschreiten, wenn spät in der Viertelstunde eine sehr große Last auftritt. In der Simulation endet ein später 7-kW-Sprung bei etwa 510 Wh statt 462 Wh mit der strengen Regel. Wenn dir das wichtig ist, `fronius_anfang_gewicht` Richtung 1 erhöhen.
 - Die Viertelstundengrenzen folgen der Home-Assistant-Uhr. Die Zeit synchron halten (NTP). Prüfen, ob dein Netzbetreiber auf denselben Grenzen misst.

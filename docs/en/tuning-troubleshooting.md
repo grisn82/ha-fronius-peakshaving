@@ -23,7 +23,8 @@ Is the budget often unused? Lower `w0` (e.g. 0.5). Does the grid import exceed t
 One of these is missing or `unavailable`: the counters, `sensor.fronius_bedarf_energie`, the SoC, or `WChaMax`. Check them in Developer Tools. After a restart, wait 1–2 minutes for the Statistics sensors.
 
 **`sensor.fronius_bedarf_energie` is unavailable or wrong**
-- Counters swapped (charged ↔ discharged): see [setup](setup.md), step 4.
+- Battery sensors swapped (charge ↔ discharge): see [setup](setup.md), step 4.
+- Demand is 0 most of the time and shows a short, large spike every few minutes: the `lifetime_energy` counters were used. Use the integrated sensors of this package (version 1.1.0 and later).
 - Counters in kWh: use `3600000` instead of `3600`.
 - Statistics sensors renamed: their IDs must be `sensor.fronius_stat_bezug`, `..._entladen`, `..._laden`.
 

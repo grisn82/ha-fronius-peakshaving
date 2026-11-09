@@ -15,7 +15,7 @@ The automation `Fronius: Netzbezug pro 15 min begrenzen` runs every 10 seconds w
 
 ### Demand from energy counters
 
-Three Statistics sensors compute `change_second` (Wh per second) of the grid import, battery-discharged and battery-charged counters over a 60 s window. The template sensor combines them:
+The battery power sensors are integrated to energy (Integration sensors, refreshed every 10 s). Three Statistics sensors then compute `change_second` (Wh per second) of the grid import counter and of the two integrated battery energies over a 60 s window. (The inverter's own `lifetime_energy` counters are not used: they update only every ca. 5 minutes.) The template sensor combines them:
 
 ```
 p_free = (Δimport + Δdischarged − Δcharged) / Δt · 3600     [W]
@@ -91,7 +91,7 @@ A discharge limit below 10 W is sent as `block_discharging` (a 0 W limit is neve
 
 ## Limitations
 
-- The counters are DC-side module counters; they are not perfectly in sync with the grid meter. Small errors are covered by the safety reserve.
+- The battery energy is an integral of DC-side power values and the grid import comes from the meter counter; they are not perfectly in sync. Small errors are covered by the safety reserve.
 - After a Home Assistant restart the Statistics sensors need 1–2 minutes to fill. Until then the state may be `fehler` (= `auto`).
 - A relaxed start can exceed the limit if a very large load appears late in the interval. In the simulation, a late 7 kW step ends at about 510 Wh instead of 462 Wh with the strict rule. Raise `fronius_anfang_gewicht` toward 1 if that matters to you.
 - Quarter-hour boundaries follow the Home Assistant clock. Keep the time synchronised (NTP). Check whether your utility measures on the same boundaries.
