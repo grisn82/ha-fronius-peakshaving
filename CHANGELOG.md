@@ -1,8 +1,12 @@
 # Changelog
 
+## 1.2.1 - 2026-11-10
+
+- Fix: `auto_nach_budget` now behaves like `auto_mit_reserve` while the SoC is above the reserve SoC (`auto`). The wait-for-budget logic only applies in the reserve zone.
+
 ## 1.2.0 - 2026-11-09
 
-- New idle mode `auto_nach_budget`: the battery stays blocked until the grid import of the quarter-hour has used up the budget (`limit − reserve`), then the inverter runs in `auto` (regulates to 0 import) until the next quarter-hour. Existing installations must add the new option to `input_select.fronius_leerlauf_modus`.
+- New idle mode `auto_nach_budget`: in the reserve zone the battery stays blocked until the grid import of the quarter-hour has used up the budget (`limit − reserve`), then the inverter runs in `auto` (regulates to 0 import) until the next quarter-hour. Existing installations must add the new option to `input_select.fronius_leerlauf_modus`.
 
 ## 1.1.0 - 2026-11-08
 

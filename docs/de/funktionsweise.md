@@ -82,15 +82,15 @@ Ein Entladelimit unter 10 W wird als `block_discharging` gesendet (ein 0-W-Limit
 | `sperren` | `block_discharging`. Die Batterie wird nur für Spitzen genutzt. Keine Eigenverbrauchsoptimierung |
 | `auto` | normale Eigenverbrauchsoptimierung. Die Batterie kann bei einer Spitze leer sein |
 | `auto_mit_reserve` | `auto`, solange der SoC über `reserve_soc` liegt; darunter wird gesperrt, um die Reserve für Spitzen zu halten |
-| `auto_nach_budget` | `block_discharging`, bis das Budget der Viertelstunde (`limit − reserve`) aufgebraucht ist, danach `auto` bis zur nächsten Viertelstunde (siehe unten) |
+| `auto_nach_budget` | wie `auto_mit_reserve` über `reserve_soc`; im Reservebereich `block_discharging`, bis das Budget der Viertelstunde (`limit − reserve`) aufgebraucht ist, danach `auto` bis zur nächsten Viertelstunde (siehe unten) |
 
 ### Modus `auto_nach_budget`
 
-Die Batterie bleibt gesperrt, solange der Netzbezug der Viertelstunde noch unter dem Budget `limit − reserve` liegt. Das Haus darf das freie Budget also aus dem Netz nutzen. Ist das Budget aufgebraucht, schaltet die Regelung auf `auto`, und der Wechselrichter regelt den Netzbezug selbstständig auf etwa 0. Mit der nächsten Viertelstunde ist das Budget wieder leer und die Batterie wieder gesperrt. Ergebnis: Die Batterie liefert nur den Teil des Verbrauchs, der über dem Budget liegt, und es wird nichts unnötig früh entladen.
+Solange der SoC über `reserve_soc` liegt, arbeitet der Modus genau wie `auto_mit_reserve` (`auto`, gleiche Hysterese). Nur im **Reservebereich** (SoC auf oder unter `reserve_soc`) bleibt die Batterie gesperrt, solange der Netzbezug der Viertelstunde unter dem Budget `limit − reserve` liegt. Das Haus darf das freie Budget also aus dem Netz nutzen. Ist das Budget aufgebraucht, schaltet die Regelung auf `auto`, und der Wechselrichter regelt den Netzbezug selbstständig auf etwa 0. Mit der nächsten Viertelstunde ist das Budget wieder leer und die Batterie wieder gesperrt. Ergebnis: Die Reserve liefert nur den Teil des Verbrauchs, der über dem Budget liegt, und es wird keine Reserveenergie unnötig früh entladen.
 
 Einzelheiten:
 - Das Entladelimit in Watt wird in diesem Modus **nicht** verwendet (der Entlade-Zweig wird übersprungen); `p_allow`/`w0` wirken nur noch beim Netzladen.
-- `auto` gilt nur, solange der SoC über `min_soc` liegt, sonst bleibt die Batterie gesperrt. `reserve_soc` wird nicht verwendet.
+- Im Reservebereich gilt `auto` nach aufgebrauchtem Budget nur, solange der SoC über `min_soc` liegt, sonst bleibt die Batterie gesperrt.
 - Netzladen (falls erlaubt) funktioniert wie gewohnt im freien Budget und endet, wenn das Budget aufgebraucht ist.
 - Abwägung: Solange das Budget nicht aufgebraucht ist, greift die Batterie nicht ein. Eine große Last kann den Bezug schnell erhöhen, und nach dem Wechsel auf `auto` braucht der Wechselrichter einige Sekunden, bis er reagiert (Abfrage, 10-s-Zyklus und Rampe des Wechselrichters zusammen etwa 15–30 s). Bei 6 kW sind das 25–50 Wh über dem Budget. In diesem Modus eine größere Sicherheitsreserve verwenden (z. B. 80–100 Wh) und testen.
 - Die Eigenregelung des Wechselrichters auf 0 ist nicht so genau wie das wattgenaue Entladelimit; kleine Restbezüge sind möglich.

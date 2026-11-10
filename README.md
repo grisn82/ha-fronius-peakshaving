@@ -20,7 +20,7 @@ Peak-based tariffs and import limits are defined in **energy per interval** (Wh 
 - Max. grid import per 15 min, configurable at runtime (helper `Max. Bezug pro 15 min`)
 - Battery discharges only as much as needed (discharge limit in watts)
 - Optional grid charging inside the free budget, with start/target SoC hysteresis
-- Four idle modes: `sperren` (block discharge), `auto` (normal self-consumption), `auto_mit_reserve` (self-consumption, but keeps a reserve SoC for peaks), `auto_nach_budget` (battery blocked until the 15-min budget is used up, then `auto`)
+- Four idle modes: `sperren` (block discharge), `auto` (normal self-consumption), `auto_mit_reserve` (self-consumption, but keeps a reserve SoC for peaks), `auto_nach_budget` (like `auto_mit_reserve`, but the reserve zone only discharges once the 15-min budget is used up)
 - Fail-safe: any missing sensor value switches the inverter back to `auto`
 - Status helper `input_select.fronius_zustand` shows what the regulator is doing
 

@@ -38,11 +38,13 @@
 #       auto_mit_reserve -> "auto" while the SoC is above the reserve; when the SoC falls to
 #                           the reserve, discharging is blocked. Back to "auto" only at
 #                           reserve + 3 percentage points.
-#       auto_nach_budget -> "block_discharging" until the budget (limit - reserve) of the
+#       auto_nach_budget -> like auto_mit_reserve while the SoC is above the reserve ("auto").
+#                           In the reserve zone (SoC <= reserve, with the same hysteresis) the
+#                           battery is blocked until the budget (limit - reserve) of the
 #                           quarter-hour is used up, then "auto" (the inverter regulates the
-#                           grid import to 0 by itself) until the next quarter-hour. The battery
-#                           only supplies what exceeds the budget. No discharge limit in watts
-#                           is used in this mode. "auto" only while SoC > minimum SoC.
+#                           grid import to 0 by itself) until the next quarter-hour, as long
+#                           as SoC > minimum SoC. The reserve then only supplies what exceeds
+#                           the budget. No discharge limit in watts is used in this mode.
 #  Missing/invalid sensor value -> state "fehler" -> mode "auto" (fail-safe).
 #
 # ------------------------------------------------------------
@@ -105,7 +107,7 @@ input_select:
       - sperren   # battery only discharges when the limit requires it
       - auto      # battery works normally (self-consumption)
       - auto_mit_reserve   # self-consumption, but the reserve (SoC) is kept for peaks
-      - auto_nach_budget   # battery blocked until the 15 min budget is used up, then auto
+      - auto_nach_budget   # like auto_mit_reserve, but in the reserve zone the battery waits until the 15 min budget is used up
   # Status display: written by the automation only
   fronius_zustand:
     name: "Fronius: Regelzustand"
@@ -317,10 +319,9 @@ automation:
           zustand_alt: "{{ states('input_select.fronius_zustand') }}"
           idle_modus: >-
             {% if leerlauf == 'sperren' %}sperren
-            {% elif leerlauf == 'auto_mit_reserve'
+            {% elif leerlauf in ['auto_mit_reserve', 'auto_nach_budget']
                     and (soc <= reserve_soc
-                         or (zustand_alt == 'sperren' and soc < reserve_soc + reserve_hyst)) %}sperren
-            {% elif leerlauf == 'auto_nach_budget' %}{% if used_wh >= limit_wh - reserve_wh and soc > min_soc %}auto{% else %}sperren{% endif %}
+                         or (zustand_alt == 'sperren' and soc < reserve_soc + reserve_hyst)) %}{% if leerlauf == 'auto_nach_budget' and used_wh >= limit_wh - reserve_wh and soc > min_soc %}auto{% else %}sperren{% endif %}
             {% else %}auto{% endif %}
           # Discharging: start when the demand is more than 50 W above the allowed value;
           # end only when it is entlade_hyst_w below (hysteresis, no waiting time)

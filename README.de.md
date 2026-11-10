@@ -20,7 +20,7 @@ Spitzenlast-Tarife und Bezugsgrenzen sind als **Energie pro Intervall** (Wh pro 
 - Max. Netzbezug pro 15 min, zur Laufzeit einstellbar (Helfer „Max. Bezug pro 15 min“)
 - Batterie entlädt nur so viel wie nötig (Entladelimit in Watt)
 - Optional Netzladen im freien Budget, mit Start-/Ziel-SoC-Hysterese
-- Vier Leerlaufmodi: `sperren` (Entladen blockieren), `auto` (normale Eigenverbrauchsoptimierung), `auto_mit_reserve` (Eigenverbrauch, hält aber einen Reserve-SoC für Spitzen), `auto_nach_budget` (Batterie gesperrt, bis das 15-min-Budget aufgebraucht ist, dann `auto`)
+- Vier Leerlaufmodi: `sperren` (Entladen blockieren), `auto` (normale Eigenverbrauchsoptimierung), `auto_mit_reserve` (Eigenverbrauch, hält aber einen Reserve-SoC für Spitzen), `auto_nach_budget` (wie `auto_mit_reserve`, aber der Reservebereich entlädt erst, wenn das 15-min-Budget aufgebraucht ist)
 - Fail-safe: Fehlt ein Sensorwert, schaltet der Wechselrichter zurück auf `auto`
 - Status-Helfer `input_select.fronius_zustand` zeigt, was die Regelung gerade tut
 
