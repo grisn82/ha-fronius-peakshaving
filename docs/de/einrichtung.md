@@ -79,7 +79,11 @@ Den Reserve-SoC nach den eigenen Spitzen wählen: Eine kurze Spitze von einigen 
 
 [`dashboard/fronius_peakshaving_dashboard.yaml`](../../dashboard/fronius_peakshaving_dashboard.yaml) ist ein Dashboard zum Steuern und Testen: Schalter (Regelung, Netzladen, Leerlaufmodus), alle Konfigurationshelfer, der Zustandsverlauf und Live-Werte. Es verwendet Entitäten der Anlage des Autors; die anzupassenden Entitäten stehen am Dateianfang. Neues Dashboard anlegen, den Raw-Konfigurationseditor öffnen und die Datei einfügen. `sensor.leistung_verbrauch` ist ein eigener Verbrauchssensor des Autors und nicht Teil des Packages; Kachel und Graphzeile löschen oder ersetzen, falls du keinen solchen Sensor hast.
 
-## 7. Einschalten
+## 7. Optional: Batterie-Gesundheitszustand
+
+[`packages/fronius_byd_soh.yaml`](../../packages/fronius_byd_soh.yaml) ergänzt einen REST-Sensor `sensor.byd_batterie_state_of_health` (SoH der Batterie in %), der im Dashboard angezeigt wird. Er liest einmal am Tag die Weboberfläche des Wechselrichters. `[Gen24-IP]` durch die IP-Adresse des Wechselrichters ersetzen. Diese Schnittstelle ist inoffiziell und undokumentiert und wurde nur mit einer BYD-Batterie getestet; sie kann sich mit Firmware-Updates ändern, und der Sensor bleibt leer, wenn die Batterie den SoH-Kanal nicht meldet. Die Regelung hängt nicht davon ab.
+
+## 8. Einschalten
 
 1. Home Assistant neu starten (die neuen `statistics`- und `utility_meter`-Plattformen brauchen einen Neustart).
 2. Mit eingeschaltetem `Fronius: Bezugsbegrenzung aktiv` `input_select.fronius_zustand` und den Wechselrichtermodus beobachten.

@@ -82,6 +82,18 @@ A discharge limit below 10 W is sent as `block_discharging` (a 0 W limit is neve
 | `sperren` | `block_discharging`. The battery is only used for peaks. No self-consumption optimisation |
 | `auto` | normal self-consumption. The battery may be empty when a peak arrives |
 | `auto_mit_reserve` | `auto` while SoC is above `reserve_soc`; below it the battery is blocked to keep the reserve for peaks |
+| `auto_nach_budget` | `block_discharging` until the budget of the quarter-hour (`limit − reserve`) is used up, then `auto` until the next quarter-hour (see below) |
+
+### Mode `auto_nach_budget`
+
+The battery stays blocked while the grid import of the quarter-hour is still below the budget `limit − reserve`, so the house may use the free budget from the grid. Once the budget is used up, the regulation switches to `auto` and the inverter regulates the grid import to about 0 by itself. At the start of the next quarter-hour the budget is empty again and the battery is blocked again. The result: the battery only supplies the part of the consumption that exceeds the budget, and no energy is discharged unnecessarily early.
+
+Details:
+- The discharge limit in watts is **not** used in this mode (the discharge branch is skipped); `p_allow`/`w0` have no effect, except for grid charging.
+- `auto` is only used while SoC > `min_soc`; otherwise the battery stays blocked. `reserve_soc` is not used.
+- Grid charging (if allowed) works as usual inside the free budget and stops when the budget is used up.
+- Trade-off: while the budget is not yet used up, the battery does not intervene. A large load can raise the import quickly, and after the switch to `auto` the inverter needs a few seconds to react (polling, the 10 s cycle and the inverter ramp together are ca. 15–30 s). At 6 kW that is 25–50 Wh above the budget. Use a larger safety reserve in this mode (e.g. 80–100 Wh) and test it.
+- The inverter's own regulation to 0 is not as exact as the watt-based discharge limit; small residual imports are possible.
 
 `min_soc`, `start_soc` and `ziel_soc` apply to peak discharging and grid charging. They do not change the idle behaviour in `auto_mit_reserve`, which only uses `reserve_soc`.
 

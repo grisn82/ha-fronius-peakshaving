@@ -1,0 +1,30 @@
+# ============================================================
+# OPTIONAL: battery state of health (SoH) of a BYD battery on a Fronius Gen24
+# Not needed for the peak shaving regulation, it is only shown on the dashboard.
+# Optional: Batterie-Gesundheitszustand (SoH) einer BYD-Batterie am Fronius Gen24.
+# Für die Regelung nicht nötig, wird nur im Dashboard angezeigt.
+# ------------------------------------------------------------
+# ADJUST: replace [Gen24-IP] by the IP address (or host name) of your inverter.
+# The value is read from the inverter's web interface (/components/readable). This is an
+# unofficial, undocumented interface of the inverter: it can change with a firmware update
+# and it only contains the SoH channel for some batteries (tested with BYD).
+# The value changes slowly, so it is requested once a day (scan_interval 86400 s).
+# Resulting entity: sensor.byd_batterie_state_of_health
+# ============================================================
+rest:
+  - resource: "http://[Gen24-IP]/components/readable"
+    scan_interval: 86400
+    sensor:
+      - name: "BYD Batterie State of Health"
+        unique_id: byd_battery_state_of_health
+        unit_of_measurement: "%"
+        state_class: measurement
+        value_template: >
+          {% set data = value_json.Body.Data %}
+          {% set ns = namespace(soh=none) %}
+          {% for key, val in data.items() %}
+            {% if 'BAT_VALUE_STATE_OF_HEALTH_RELATIVE_U16' in val.get('channels', {}) %}
+              {% set ns.soh = val.channels.BAT_VALUE_STATE_OF_HEALTH_RELATIVE_U16 %}
+            {% endif %}
+          {% endfor %}
+          {{ ns.soh }}

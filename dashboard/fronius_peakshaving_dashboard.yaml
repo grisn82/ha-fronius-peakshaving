@@ -16,7 +16,7 @@
 #   sensor.sunspecfronius_mppt_pv_leistung                    PV power
 #   sensor.sunspecfronius_mppt_module_2_dc_power / _3_        battery charge / discharge power
 #   sensor.leistung_verbrauch                                 house consumption (own template sensor, not part of the package)
-#   sensor.byd_batterie_state_of_health                       battery state of health (BYD specific, optional: delete the tile)
+#   sensor.byd_batterie_state_of_health                       battery state of health (optional, from packages/fronius_byd_soh.yaml; delete the tile if unused)
 # The input_*/sensor.fronius_* entities come from the package and need no change.
 # Tile and graph titles are German; change the "name:" values as you like.
 

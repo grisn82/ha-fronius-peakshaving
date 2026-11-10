@@ -1,10 +1,15 @@
 # Changelog
 
+## 1.2.0 - 2026-11-09
+
+- New idle mode `auto_nach_budget`: the battery stays blocked until the grid import of the quarter-hour has used up the budget (`limit − reserve`), then the inverter runs in `auto` (regulates to 0 import) until the next quarter-hour. Existing installations must add the new option to `input_select.fronius_leerlauf_modus`.
+
 ## 1.1.0 - 2026-11-08
 
 - Fix: the battery energy is no longer taken from the inverter's `lifetime_energy` counters (they update only every ca. 5 minutes and caused false demand spikes and unnecessary discharging). Instead the DC power sensors of the battery channels are integrated to Wh (Integration sensors, `max_sub_interval` 10 s).
 - Changed entity IDs to adjust: battery charge/discharge **power** (`..._dc_power`) instead of the energy counters. Existing installations must change these two IDs.
 - New: dashboard for control and testing (`dashboard/`). Docs: Modbus unit IDs (inverter 1, smart meter 200, separate devices) and polling interval.
+- New: optional package `packages/fronius_byd_soh.yaml` (REST sensor for the BYD battery state of health).
 - New sensors: `sensor.fronius_batterie_ladeenergie`, `sensor.fronius_batterie_entladeenergie`.
 
 ## 1.0.0 - 2026-11-07

@@ -38,6 +38,11 @@
 #       auto_mit_reserve -> "auto" while the SoC is above the reserve; when the SoC falls to
 #                           the reserve, discharging is blocked. Back to "auto" only at
 #                           reserve + 3 percentage points.
+#       auto_nach_budget -> "block_discharging" until the budget (limit - reserve) of the
+#                           quarter-hour is used up, then "auto" (the inverter regulates the
+#                           grid import to 0 by itself) until the next quarter-hour. The battery
+#                           only supplies what exceeds the budget. No discharge limit in watts
+#                           is used in this mode. "auto" only while SoC > minimum SoC.
 #  Missing/invalid sensor value -> state "fehler" -> mode "auto" (fail-safe).
 #
 # ------------------------------------------------------------
@@ -100,6 +105,7 @@ input_select:
       - sperren   # battery only discharges when the limit requires it
       - auto      # battery works normally (self-consumption)
       - auto_mit_reserve   # self-consumption, but the reserve (SoC) is kept for peaks
+      - auto_nach_budget   # battery blocked until the 15 min budget is used up, then auto
   # Status display: written by the automation only
   fronius_zustand:
     name: "Fronius: Regelzustand"
@@ -304,7 +310,7 @@ automation:
             {{ is_state('input_boolean.fronius_netzladen_erlaubt', 'on')
                and (soc < ([start_soc, ziel_soc] | min)
                     or (ladephase_alt and soc < ziel_soc)) }}
-          # Idle: sperren | auto | auto_mit_reserve
+          # Idle: sperren | auto | auto_mit_reserve | auto_nach_budget
           leerlauf: "{{ states('input_select.fronius_leerlauf_modus') }}"
           reserve_soc: "{{ states('input_number.fronius_reserve_soc') | float(25) }}"
           reserve_hyst: 3     # percentage points above the reserve from which "auto" applies again
@@ -314,11 +320,13 @@ automation:
             {% elif leerlauf == 'auto_mit_reserve'
                     and (soc <= reserve_soc
                          or (zustand_alt == 'sperren' and soc < reserve_soc + reserve_hyst)) %}sperren
+            {% elif leerlauf == 'auto_nach_budget' %}{% if used_wh >= limit_wh - reserve_wh and soc > min_soc %}auto{% else %}sperren{% endif %}
             {% else %}auto{% endif %}
           # Discharging: start when the demand is more than 50 W above the allowed value;
           # end only when it is entlade_hyst_w below (hysteresis, no waiting time)
           entladen_noetig: >-
-            {{ soc > min_soc
+            {{ leerlauf != 'auto_nach_budget'
+               and soc > min_soc
                and p_dis > (-entlade_hyst_w if zustand_alt == 'entladen' else 50) }}
           # Grid charging only with a safety margin to the budget. Once started, it continues
           # as long as at least 100 W of charge power is left (hysteresis).

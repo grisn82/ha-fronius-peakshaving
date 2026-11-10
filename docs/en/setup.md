@@ -79,7 +79,11 @@ Choose the reserve SoC from your peaks: a short peak of a few hundred Wh needs o
 
 [`dashboard/fronius_peakshaving_dashboard.yaml`](../../dashboard/fronius_peakshaving_dashboard.yaml) is a dashboard for control and testing: switches (regulation, grid charging, idle mode), all configuration helpers, the state history and live values. It uses entities of the author's system; the entities to adjust are listed at the top of the file. Add a new dashboard, open the raw configuration editor and paste the file. `sensor.leistung_verbrauch` is the author's own consumption sensor and not part of the package; delete or replace that tile and graph line if you have no such sensor.
 
-## 7. Switch on
+## 7. Optional: battery state of health
+
+[`packages/fronius_byd_soh.yaml`](../../packages/fronius_byd_soh.yaml) adds a REST sensor `sensor.byd_batterie_state_of_health` (battery SoH in %), shown on the dashboard. It reads the inverter's web interface once a day. Replace `[Gen24-IP]` with the IP address of your inverter. This interface is unofficial and undocumented and was tested with a BYD battery only; it may change with firmware updates, and the sensor stays empty if your battery does not report the SoH channel. The regulation does not depend on it.
+
+## 8. Switch on
 
 1. Restart Home Assistant (or reload YAML configuration; the new `statistics` and `utility_meter` platforms need a restart).
 2. Watch `input_select.fronius_zustand` and the inverter mode with `Fronius: Bezugsbegrenzung aktiv` on.
