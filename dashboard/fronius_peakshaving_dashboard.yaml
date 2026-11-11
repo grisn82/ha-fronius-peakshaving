@@ -12,7 +12,7 @@
 #   number.symo_gen24_8_0_storage_batterie_netzladeleistung   grid charge power
 #   number.symo_gen24_8_0_storage_batterie_entladelimit       discharge limit
 #   sensor.sunspecfronius_storage_chastate                    battery SoC
-#   sensor.sunspecfronius_sm_meter_three_phase_wye_watts      grid power
+#   sensor.sunspecfronius_sm_meter_three_phase_wye_watts      grid power (also used by the package)
 #   sensor.sunspecfronius_mppt_pv_leistung                    PV power
 #   sensor.sunspecfronius_mppt_module_2_dc_power / _3_        battery charge / discharge power
 #   sensor.leistung_verbrauch                                 house consumption (own template sensor, not part of the package)
@@ -227,6 +227,8 @@ views:
             entity: sensor.fronius_stat_entladen
           - type: tile
             entity: sensor.fronius_stat_bezug
+          - type: tile
+            entity: sensor.fronius_netzbezug_energie
           - type: tile
             entity: sensor.fronius_stat_laden
           - type: tile

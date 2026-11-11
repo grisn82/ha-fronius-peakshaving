@@ -11,7 +11,7 @@ Die Batterie wird über die Entitäten der Integration [`ha-sunspec2`](https://g
 Spitzenlast-Tarife und Bezugsgrenzen sind als **Energie pro Intervall** (Wh pro 15 min) definiert, nicht als Leistung. Das Package arbeitet deshalb mit Energiezählern:
 
 - Der bisherige Netzbezug der laufenden Viertelstunde kommt aus einem `utility_meter` auf dem Bezugszähler. Auch eine Spitze von wenigen Sekunden wird exakt mitgezählt.
-- Der aktuelle Bedarf ist der Mittelwert der letzten ~60 s, berechnet aus den Energiezählern für Netzbezug und Batterie-Laden/Entladen. Keine momentanen Leistungswerte, daher stören träge oder sprunghafte Leistungsmesswerte nicht.
+- Der aktuelle Bedarf ist der Mittelwert der letzten ~60 s, berechnet aus der integrierten Leistung (Energie) für Netzbezug und Batterie-Laden/Entladen. Keine momentanen Leistungswerte, daher stören träge oder sprunghafte Leistungsmesswerte nicht.
 - Hysterese in Watt statt Wartezeiten: Die Batterie reagiert sofort, springt aber nicht zwischen Laden und Entladen hin und her.
 - Am Anfang jeder Viertelstunde locker, am Ende streng – damit das Budget auch genutzt wird.
 
@@ -41,7 +41,7 @@ Spitzenlast-Tarife und Bezugsgrenzen sind als **Energie pro Intervall** (Wh pro 
      packages: !include_dir_named packages
    ```
 2. [`packages/fronius_peakshaving.yaml`](packages/fronius_peakshaving.yaml) nach `<config>/packages/` kopieren.
-3. **Die 8 Entity-IDs** am Dateianfang durch die eigenen ersetzen (Suchen & Ersetzen).
+3. **Die 9 Entity-IDs** am Dateianfang durch die eigenen ersetzen (Suchen & Ersetzen).
 4. Zähler und Bedarfssensor prüfen (siehe [Einrichtung](docs/de/einrichtung.md)), Home Assistant neu starten.
 5. Helfer einstellen (Startwerte in der Einrichtungsanleitung), `Fronius: Bezugsbegrenzung aktiv` einschalten.
 

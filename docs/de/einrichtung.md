@@ -28,7 +28,7 @@ homeassistant:
 
 ## 3. Entity-IDs anpassen
 
-Diese 8 IDs in der Datei ersetzen (Suchen & Ersetzen):
+Diese 9 IDs in der Datei ersetzen (Suchen & Ersetzen):
 
 | Zweck | ID des Autors (ersetzen) |
 |---|---|
@@ -38,6 +38,7 @@ Diese 8 IDs in der Datei ersetzen (Suchen & Ersetzen):
 | max. Batterieleistung (W) | `number.symo_gen24_8_0_storage_batterie_ladeleistung_max` |
 | Batterie-SoC (%) | `sensor.sunspecfronius_storage_chastate` |
 | Netzbezugszähler (Wh) | `sensor.sunspecfronius_sm_meter_three_phase_wye_total_watt_hours_imported` |
+| Netzleistung (W, positiv = Bezug) | `sensor.sunspecfronius_sm_meter_three_phase_wye_watts` |
 | Batterie-**Ladeleistung** (W) | `sensor.sunspecfronius_mppt_module_2_dc_power` |
 | Batterie-**Entladeleistung** (W) | `sensor.sunspecfronius_mppt_module_3_dc_power` |
 
@@ -49,14 +50,14 @@ Hinweis: Der Bezugszähler kommt in der Datei mehrfach vor (utility_meter, Stati
 
 ## 4. Vor dem Einschalten prüfen
 
-1. Entwicklerwerkzeuge → Zustände: Der Netzbezugszähler muss eine Zahl sein und beim Netzbezug steigen. Nach einem Neustart beginnen die Integralsensoren `sensor.fronius_batterie_ladeenergie` und `sensor.fronius_batterie_entladeenergie` zu zählen: der erste steigt beim Laden, der zweite beim Entladen.
+1. Entwicklerwerkzeuge → Zustände: Der Netzbezugszähler muss eine Zahl sein und beim Netzbezug steigen. Nach einem Neustart beginnen die Integralsensoren zu zählen: `sensor.fronius_netzbezug_energie` steigt beim Netzbezug, `sensor.fronius_batterie_ladeenergie` beim Laden und `sensor.fronius_batterie_entladeenergie` beim Entladen.
 2. Nach einem Neustart 1–2 Minuten warten. Dann muss `sensor.fronius_bedarf_energie` den **Hausverbrauch minus PV** in Watt zeigen. Mit dem realen Wert in drei Situationen vergleichen:
    - Batterie im Leerlauf
    - Batterie lädt
    - Batterie entlädt
 
    Der Wert muss in allen drei Fällen ungefähr gleich sein. Springt er beim Richtungswechsel der Batterie um die doppelte Batterieleistung, sind Lade- und Entladezähler vertauscht.
-3. Falls dein Netzbezugszähler in kWh statt Wh misst, im Bedarfssensor für den Bezugsterm `3600` durch `3600000` ersetzen. Die Batterieleistungssensoren müssen in W messen (bei kW wäre das Integral in kWh).
+3. Die Netzleistung und die Batterieleistungssensoren müssen in W messen (bei kW wären die Integrale in kWh und der Bedarf 1000-mal zu klein).
 4. `sensor.fronius_bezug_viertelstunde` muss bei :00, :15, :30, :45 zurückgesetzt werden und den Bezug in Wh zählen.
 
 ## 5. Startwerte

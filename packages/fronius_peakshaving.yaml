@@ -58,6 +58,7 @@
 #   number.symo_gen24_8_0_storage_batterie_ladeleistung_max      max battery power (WChaMax), W
 #   sensor.sunspecfronius_storage_chastate                       battery state of charge, %
 #   sensor.sunspecfronius_sm_meter_three_phase_wye_total_watt_hours_imported   grid import counter, Wh
+#   sensor.sunspecfronius_sm_meter_three_phase_wye_watts         grid power, W (positive = import)
 #   sensor.sunspecfronius_mppt_module_2_dc_power                 battery CHARGE power, W (positive while charging)
 #   sensor.sunspecfronius_mppt_module_3_dc_power                 battery DISCHARGE power, W (positive while discharging)
 #
@@ -69,12 +70,10 @@
 # integrated to Wh here (Integration sensors, updated every 10 s).
 # Check before enabling: sensor.fronius_bedarf_energie must match the real house demand
 # (consumption minus PV), with the battery idle as well as charging/discharging.
-# Grid import counter in kWh instead of Wh? Then replace the factor 3600 in the demand
-# sensor below by 3600000 for the import term (see comment there). The battery power
-# sensors must be in W.
+# The grid power and the battery power sensors must be in W (the integrals are then in Wh).
 #
-# Do NOT rename the Statistics sensors and the template sensor ("Fronius Stat ...",
-# "Fronius Bedarf Energie"): their entity IDs are derived from the names and are
+# Do NOT rename the Statistics, Integration and template sensors ("Fronius Stat ...",
+# "Fronius Netzbezug ...", "Fronius Batterie ...", "Fronius Bedarf Energie"): their entity IDs are derived from the names and are
 # referenced by the automation. The names of the helpers can be changed freely
 # (their entity IDs come from the keys).
 #
@@ -175,8 +174,20 @@ utility_meter:
 # Shorter = faster but less accurate; longer (90-120 s) = calmer but slower.
 # keep_last_sample: the last value is kept even if nothing was imported for a while.
 sensor:
-  # Battery energy by integrating the DC power (Wh). max_sub_interval makes the sensor
+  # Grid import energy by integrating the meter POWER (Wh); the import counter itself grows
+  # in steps of >= 1 Wh and would make the 60 s mean jump. The quarter-hour budget
+  # (utility_meter) still uses the exact counter.
+  # Battery energy by integrating the DC power (Wh). max_sub_interval makes the sensors
   # update every 10 s even when the power stays constant.
+  - platform: integration
+    name: "Fronius Netzbezug Energie"
+    unique_id: fronius_netzbezug_energie
+    source: sensor.fronius_netzbezug_leistung   # import power in W, see template sensor below
+    unit_time: h
+    method: trapezoidal
+    round: 3
+    max_sub_interval:
+      seconds: 10
   - platform: integration
     name: "Fronius Batterie Ladeenergie"
     unique_id: fronius_batterie_ladeenergie
@@ -198,7 +209,7 @@ sensor:
   - platform: statistics
     name: "Fronius Stat Bezug"
     unique_id: fronius_stat_bezug
-    entity_id: sensor.sunspecfronius_sm_meter_three_phase_wye_total_watt_hours_imported
+    entity_id: sensor.fronius_netzbezug_energie
     state_characteristic: change_second
     max_age:
       seconds: 60
@@ -224,10 +235,18 @@ sensor:
     precision: 5
 
 # Demand without battery (house consumption minus PV) in W, from the energy mean of the
-# last ca. 60 s (grid import counter + integrated battery power). To check: compare the value with the real house power.
-# Wh/s -> W: times 3600. (Counters in kWh: use 3600000 instead of 3600 for this term.)
+# last ca. 60 s (integrated grid import power + integrated battery power). To check:
+# compare the value with the real house power. Wh/s -> W: times 3600.
 template:
   - sensor:
+      # Grid import power: only the import counts (export is negative and becomes 0)
+      - name: "Fronius Netzbezug Leistung"
+        unique_id: fronius_netzbezug_leistung
+        unit_of_measurement: W
+        device_class: power
+        state_class: measurement
+        availability: "{{ has_value('sensor.sunspecfronius_sm_meter_three_phase_wye_watts') }}"
+        state: "{{ [states('sensor.sunspecfronius_sm_meter_three_phase_wye_watts') | float(0), 0] | max }}"
       - name: "Fronius Bedarf Energie"
         unique_id: fronius_bedarf_energie
         unit_of_measurement: W
@@ -275,6 +294,7 @@ automation:
           ok: >-
             {{ has_value('sensor.fronius_bezug_viertelstunde')
                and has_value(ent_cnt_import)
+               and has_value('sensor.fronius_netzbezug_energie')
                and has_value(ent_cnt_charge)
                and has_value(ent_cnt_discharge)
                and has_value('sensor.fronius_bedarf_energie')
@@ -293,7 +313,7 @@ automation:
           t_calc: "{{ [t_rem | float, 60] | max }}"
           # strict allowed power for the rest of the quarter-hour (remaining energy / remaining time)
           p_strict: "{{ [ (limit_wh - reserve_wh - used_wh) * 3600 / t_calc, 0 ] | max }}"
-          # Demand without battery, averaged from the energy counters (W)
+          # Demand without battery, averaged from the energy (W)
           p_free: "{{ states('sensor.fronius_bedarf_energie') | float(0) }}"
           # Relaxed at the start, strict at the end: forecast weight w rises linearly from w0 to 1
           x_el: "{{ [[(900 - t_rem) / 900, 0] | max, 1] | min }}"

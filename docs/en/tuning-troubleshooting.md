@@ -25,7 +25,7 @@ One of these is missing or `unavailable`: the counters, `sensor.fronius_bedarf_e
 **`sensor.fronius_bedarf_energie` is unavailable or wrong**
 - Battery sensors swapped (charge ↔ discharge): see [setup](setup.md), step 4.
 - Demand is 0 most of the time and shows a short, large spike every few minutes: the `lifetime_energy` counters were used. Use the integrated sensors of this package (version 1.1.0 and later).
-- Counters in kWh: use `3600000` instead of `3600`.
+- Power sensors in kW instead of W: the demand is 1000 times too small. Use W sensors.
 - Statistics sensors renamed: their IDs must be `sensor.fronius_stat_bezug`, `..._entladen`, `..._laden`.
 
 **The battery flaps between discharging and idle**
@@ -45,6 +45,10 @@ On some setups the entity resets itself. Test the fallback: stop Home Assistant 
 - The battery was at `min_soc` or empty.
 - A very large late load with a relaxed start (see limitations in [how-it-works](how-it-works.md)).
 - Your utility measures on different quarter-hour boundaries or with another method.
+
+## Why the grid import is integrated from power
+
+The import counter of the smart meter grows in steps (at least 1 Wh) and is reported every 5–20 s. A `change_second` over 60 s directly on this counter jumps by about 60 W per Wh step (and more with a shorter window), so `sensor.fronius_bedarf_energie` would look noisy. Therefore the package integrates the meter **power** (whole watts, no steps) to `sensor.fronius_netzbezug_energie`, like the battery energy. The integral follows the power sensor, which can lag slightly behind the counter. The quarter-hour budget uses the exact counter. If `sensor.fronius_bedarf_energie` is still too noisy, use a larger `max_age` (90–120 s) for the Statistics sensors.
 
 ## Simulation
 

@@ -11,7 +11,7 @@ It controls the battery through the entities of the [`ha-sunspec2`](https://gith
 Peak-based tariffs and import limits are defined in **energy per interval** (Wh per 15 min), not in power. This package therefore works with energy counters:
 
 - Grid import so far in the current quarter-hour comes from a `utility_meter` on the import counter. Even a spike of a few seconds is counted exactly.
-- The current demand is the mean over the last ~60 s, calculated from the energy counters of grid import and battery charge/discharge. No instantaneous power samples, so slow or jumpy power readings do not matter.
+- The current demand is the mean over the last ~60 s, calculated from the integrated grid import and battery charge/discharge power (energy). No instantaneous power samples, so slow or jumpy power readings do not matter.
 - Hysteresis in watts instead of dwell times: the battery reacts immediately, but does not flap between charging and discharging.
 - Relaxed at the start, strict at the end of each quarter-hour, so the budget is actually used.
 
@@ -41,7 +41,7 @@ Peak-based tariffs and import limits are defined in **energy per interval** (Wh 
      packages: !include_dir_named packages
    ```
 2. Copy [`packages/fronius_peakshaving.yaml`](packages/fronius_peakshaving.yaml) to `<config>/packages/`.
-3. **Replace the 8 entity IDs** listed at the top of the file with the ones of your system (search & replace).
+3. **Replace the 9 entity IDs** listed at the top of the file with the ones of your system (search & replace).
 4. Verify the counters and the demand sensor (see [setup](docs/en/setup.md)), restart Home Assistant.
 5. Set the helpers (start values in the setup guide), switch `Fronius: Bezugsbegrenzung aktiv` on.
 

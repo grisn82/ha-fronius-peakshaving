@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.3.0 - 2026-11-11
+
+- The grid import rate for the demand estimate is now also taken from the integrated meter **power** (`sensor.fronius_netzbezug_leistung` → `sensor.fronius_netzbezug_energie`), like the battery energy. The stepped import counter caused a noisy `sensor.fronius_bedarf_energie`. The quarter-hour budget still uses the exact counter. The grid power sensor is now a required entity ID to adjust.
+- Existing installations: copy the new sensors into your package; if you used an optional file for this (preview versions), delete it to avoid duplicate IDs.
+
 ## 1.2.1 - 2026-11-10
 
 - Fix: `auto_nach_budget` now behaves like `auto_mit_reserve` while the SoC is above the reserve SoC (`auto`). The wait-for-budget logic only applies in the reserve zone.

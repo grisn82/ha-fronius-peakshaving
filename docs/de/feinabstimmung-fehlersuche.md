@@ -25,7 +25,7 @@ Einer dieser Werte fehlt oder ist `unavailable`: die Zähler, `sensor.fronius_be
 **`sensor.fronius_bedarf_energie` ist nicht verfügbar oder falsch**
 - Batteriesensoren vertauscht (Laden ↔ Entladen): siehe [Einrichtung](einrichtung.md), Schritt 4.
 - Bedarf ist meist 0 und zeigt alle paar Minuten kurz eine große Spitze: Es wurden die `lifetime_energy`-Zähler verwendet. Die integrierten Sensoren dieses Packages nutzen (Version 1.1.0 und neuer).
-- Zähler in kWh: `3600000` statt `3600` verwenden.
+- Leistungssensoren in kW statt W: Der Bedarf ist 1000-mal zu klein. W-Sensoren verwenden.
 - Statistik-Sensoren umbenannt: Ihre IDs müssen `sensor.fronius_stat_bezug`, `..._entladen`, `..._laden` lauten.
 
 **Die Batterie wechselt ständig zwischen Entladen und Leerlauf**
@@ -45,6 +45,10 @@ Bei manchen Setups setzt sich die Entität selbst zurück. Den Rückfall testen:
 - Die Batterie war auf `min_soc` oder leer.
 - Sehr große späte Last bei lockerem Start (siehe Grenzen in [Funktionsweise](funktionsweise.md)).
 - Dein Netzbetreiber misst auf anderen Viertelstundengrenzen oder mit einer anderen Methode.
+
+## Warum der Netzbezug aus der Leistung integriert wird
+
+Der Bezugszähler des Smart Meters wächst in Stufen (mindestens 1 Wh) und wird alle 5–20 s gemeldet. Ein `change_second` über 60 s direkt auf diesem Zähler springt um etwa 60 W pro Wh-Stufe (bei kürzerem Fenster mehr), so dass `sensor.fronius_bedarf_energie` verrauscht wirkt. Das Package integriert deshalb die **Leistung** des Smart Meters (ganze Watt, keine Stufen) zu `sensor.fronius_netzbezug_energie`, wie die Batterieenergie. Das Integral folgt dem Leistungssensor, der dem Zähler etwas hinterherhinken kann. Das Viertelstundenbudget nutzt den exakten Zähler. Ist `sensor.fronius_bedarf_energie` trotzdem zu unruhig, bei den Statistik-Sensoren ein größeres `max_age` (90–120 s) verwenden.
 
 ## Simulation
 

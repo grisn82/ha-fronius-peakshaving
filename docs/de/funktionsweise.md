@@ -15,13 +15,15 @@ Die Automation `Fronius: Netzbezug pro 15 min begrenzen` läuft alle 10 Sekunden
 
 ### Bedarf aus Energiezählern
 
-Die Batterieleistungssensoren werden zu Energie integriert (Integrationssensoren, alle 10 s aktualisiert). Drei Statistik-Sensoren berechnen dann `change_second` (Wh pro Sekunde) des Netzbezugszählers und der beiden integrierten Batterieenergien über ein 60-s-Fenster. (Die `lifetime_energy`-Zähler des Wechselrichters werden nicht verwendet: Sie aktualisieren sich nur etwa alle 5 Minuten.) Der Template-Sensor kombiniert sie:
+Die Netzbezugsleistung (nur der Bezug, Einspeisung zählt als 0) und die beiden Batterieleistungssensoren werden zu Energie integriert (Integrationssensoren, alle 10 s aktualisiert). Drei Statistik-Sensoren berechnen dann `change_second` (Wh pro Sekunde) dieser drei Energien über ein 60-s-Fenster. (Die `lifetime_energy`-Zähler des Wechselrichters werden nicht verwendet: Sie aktualisieren sich nur etwa alle 5 Minuten.) Der Template-Sensor kombiniert sie:
 
 ```
 p_free = (Δbezug + Δentladen − Δgeladen) / Δt · 3600     [W]
 ```
 
 Das ist der Hausverbrauch minus PV-Erzeugung, also was das Netz **ohne** Batterie liefern müsste. Da der Wert aus Zählern stammt, ist alles enthalten, was zwischen zwei Abfragen passiert ist.
+
+Die Leistung zu integrieren und danach `change_second` zu bilden, ist mathematisch ein gleitender Mittelwert der Leistung über das 60-s-Fenster. Deshalb ist der Wert ruhig, reagiert aber mit einer Verzögerung von bis zu einem halben Fenster. Der Netzbezug wird aus der **Leistung** des Smart Meters integriert (`max(P_Netz, 0)`) und nicht aus dem Bezugszähler übernommen, weil der Zähler in Stufen von mindestens 1 Wh wächst und nur alle 5–20 s gemeldet wird; ein 60-s-Mittelwert eines solchen Zählers springt um etwa 60 W pro Stufe. Das Viertelstundenbudget nutzt weiter den exakten Zähler.
 
 ## Erlaubte Leistung
 
@@ -103,7 +105,7 @@ Einzelheiten:
 
 ## Grenzen
 
-- Die Batterieenergie ist ein Integral DC-seitiger Leistungswerte, der Netzbezug kommt vom Zählerstand des Smart Meters; beide sind nicht perfekt synchron. Kleine Abweichungen deckt die Sicherheitsreserve ab.
+- Die Bedarfsschätzung entsteht aus integrierten Leistungswerten (Netz und Batterie), das Budget aus dem Zählerstand; beide sind nicht perfekt synchron. Kleine Abweichungen deckt die Sicherheitsreserve ab.
 - Nach einem Neustart von Home Assistant brauchen die Statistik-Sensoren 1–2 Minuten, bis sie gefüllt sind. Bis dahin kann der Zustand `fehler` (= `auto`) sein.
 - Ein lockerer Start kann das Limit überschreiten, wenn spät in der Viertelstunde eine sehr große Last auftritt. In der Simulation endet ein später 7-kW-Sprung bei etwa 510 Wh statt 462 Wh mit der strengen Regel. Wenn dir das wichtig ist, `fronius_anfang_gewicht` Richtung 1 erhöhen.
 - Die Viertelstundengrenzen folgen der Home-Assistant-Uhr. Die Zeit synchron halten (NTP). Prüfen, ob dein Netzbetreiber auf denselben Grenzen misst.

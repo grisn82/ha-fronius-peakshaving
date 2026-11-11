@@ -15,13 +15,15 @@ The automation `Fronius: Netzbezug pro 15 min begrenzen` runs every 10 seconds w
 
 ### Demand from energy counters
 
-The battery power sensors are integrated to energy (Integration sensors, refreshed every 10 s). Three Statistics sensors then compute `change_second` (Wh per second) of the grid import counter and of the two integrated battery energies over a 60 s window. (The inverter's own `lifetime_energy` counters are not used: they update only every ca. 5 minutes.) The template sensor combines them:
+The grid import power (only the import, export counts as 0) and the two battery power sensors are integrated to energy (Integration sensors, refreshed every 10 s). Three Statistics sensors then compute `change_second` (Wh per second) of these three energies over a 60 s window. (The inverter's own `lifetime_energy` counters are not used: they update only every ca. 5 minutes.) The template sensor combines them:
 
 ```
 p_free = (Δimport + Δdischarged − Δcharged) / Δt · 3600     [W]
 ```
 
 This is the house consumption minus PV production, i.e. what the grid would have to supply **without** the battery. Because it comes from counters, everything that happened between two polls is included.
+
+Integrating the power and then taking `change_second` is mathematically a moving average of the power over the 60 s window. That is why this value is calm, but it also reacts with a delay of up to half the window. The grid import is integrated from the meter **power** (`max(P_grid, 0)`), not taken from the import counter, because the counter grows in steps of at least 1 Wh and is reported only every 5–20 s; a 60 s mean of such a counter jumps by about 60 W per step. The quarter-hour budget still uses the exact counter.
 
 ## Allowed power
 
@@ -103,7 +105,7 @@ Details:
 
 ## Limitations
 
-- The battery energy is an integral of DC-side power values and the grid import comes from the meter counter; they are not perfectly in sync. Small errors are covered by the safety reserve.
+- The demand estimate is built from integrated power values (grid and battery), the budget from the meter counter; they are not perfectly in sync. Small errors are covered by the safety reserve.
 - After a Home Assistant restart the Statistics sensors need 1–2 minutes to fill. Until then the state may be `fehler` (= `auto`).
 - A relaxed start can exceed the limit if a very large load appears late in the interval. In the simulation, a late 7 kW step ends at about 510 Wh instead of 462 Wh with the strict rule. Raise `fronius_anfang_gewicht` toward 1 if that matters to you.
 - Quarter-hour boundaries follow the Home Assistant clock. Keep the time synchronised (NTP). Check whether your utility measures on the same boundaries.
