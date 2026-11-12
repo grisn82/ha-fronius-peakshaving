@@ -1,0 +1,365 @@
+# Dashboard: seasonal profile (monthly limit and reserve SoC) with chart
+# Dashboard: Saisonprofil (Monatswerte für Limit und Reserve-SoC) mit Diagramm
+#
+# Requires: packages/fronius_saisonprofil.yaml and the custom card "apexcharts-card" (HACS).
+# Benötigt: packages/fronius_saisonprofil.yaml und die Zusatzkarte "apexcharts-card" (HACS).
+# Install as in dashboard/fronius_peakshaving_dashboard.yaml (raw configuration editor), or
+# copy the "- type: sections" view into your existing dashboard.
+# Note: the apexcharts-card options were written from the documentation without a test
+# on a live system; if the card shows an error, check the option names in its README.
+# No entity IDs to adjust.
+
+views:
+  - type: sections
+    title: Saisonprofil
+    max_columns: 4
+    sections:
+      - type: grid
+        column_span: 4
+        cards:
+          - type: heading
+            heading: Saisonprofil
+            heading_style: title
+            icon: mdi:calendar-sync
+          - type: tile
+            entity: input_boolean.fronius_saisonprofil
+            name: Saisonprofil aktiv
+            vertical: false
+            features:
+              - type: toggle
+            features_position: bottom
+          - type: tile
+            entity: input_number.fronius_bezug_limit_wh
+            name: "Aktuell: Max. Bezug"
+            vertical: false
+          - type: tile
+            entity: input_number.fronius_reserve_soc
+            name: "Aktuell: Reserve-SoC"
+            vertical: false
+          - type: tile
+            entity: input_number.fronius_ziel_soc
+            name: "Aktuell: Ziel-SoC"
+            vertical: false
+          - type: tile
+            entity: input_number.fronius_start_soc
+            name: "Aktuell: Start-SoC"
+            vertical: false
+          - type: custom:apexcharts-card
+            grid_options:
+              columns: 24
+              rows: auto
+            graph_span: 1y
+            span:
+              start: year
+            header:
+              show: true
+              title: Monatswerte
+              show_states: false
+            apex_config:
+              xaxis:
+                labels:
+                  format: MMM
+            yaxis:
+              - id: wh
+                min: 0
+                decimals: 0
+              - id: soc
+                opposite: true
+                min: 0
+                max: 100
+                decimals: 0
+            series:
+              - entity: sensor.fronius_saisonprofil
+                name: Max. Bezug (Wh)
+                type: line
+                curve: stepline
+                yaxis_id: wh
+                data_generator: |
+                  return entity.attributes.limit_wh.map((v, i) => [new Date(new Date().getFullYear(), i, 1).getTime(), v]).concat([[new Date(new Date().getFullYear(), 11, 31, 23, 59).getTime(), entity.attributes.limit_wh[11]]]);
+              - entity: sensor.fronius_saisonprofil
+                name: Reserve-/Ziel-SoC (%)
+                type: line
+                curve: stepline
+                yaxis_id: soc
+                data_generator: |
+                  return entity.attributes.reserve_soc.map((v, i) => [new Date(new Date().getFullYear(), i, 1).getTime(), v]).concat([[new Date(new Date().getFullYear(), 11, 31, 23, 59).getTime(), entity.attributes.reserve_soc[11]]]);
+              - entity: sensor.fronius_saisonprofil
+                name: Start-SoC Netzladen (%)
+                type: line
+                curve: stepline
+                yaxis_id: soc
+                data_generator: |
+                  return entity.attributes.start_soc.map((v, i) => [new Date(new Date().getFullYear(), i, 1).getTime(), v]).concat([[new Date(new Date().getFullYear(), 11, 31, 23, 59).getTime(), entity.attributes.start_soc[11]]]);
+      - type: grid
+        column_span: 2
+        cards:
+          - type: heading
+            heading: Max. Bezug pro 15 min (Wh)
+            heading_style: title
+            icon: mdi:flash
+          - type: tile
+            entity: input_number.fronius_limit_wh_jan
+            name: Jan
+            vertical: false
+            features:
+              - type: numeric-input
+            features_position: bottom
+          - type: tile
+            entity: input_number.fronius_limit_wh_feb
+            name: Feb
+            vertical: false
+            features:
+              - type: numeric-input
+            features_position: bottom
+          - type: tile
+            entity: input_number.fronius_limit_wh_mar
+            name: Mär
+            vertical: false
+            features:
+              - type: numeric-input
+            features_position: bottom
+          - type: tile
+            entity: input_number.fronius_limit_wh_apr
+            name: Apr
+            vertical: false
+            features:
+              - type: numeric-input
+            features_position: bottom
+          - type: tile
+            entity: input_number.fronius_limit_wh_mai
+            name: Mai
+            vertical: false
+            features:
+              - type: numeric-input
+            features_position: bottom
+          - type: tile
+            entity: input_number.fronius_limit_wh_jun
+            name: Jun
+            vertical: false
+            features:
+              - type: numeric-input
+            features_position: bottom
+          - type: tile
+            entity: input_number.fronius_limit_wh_jul
+            name: Jul
+            vertical: false
+            features:
+              - type: numeric-input
+            features_position: bottom
+          - type: tile
+            entity: input_number.fronius_limit_wh_aug
+            name: Aug
+            vertical: false
+            features:
+              - type: numeric-input
+            features_position: bottom
+          - type: tile
+            entity: input_number.fronius_limit_wh_sep
+            name: Sep
+            vertical: false
+            features:
+              - type: numeric-input
+            features_position: bottom
+          - type: tile
+            entity: input_number.fronius_limit_wh_okt
+            name: Okt
+            vertical: false
+            features:
+              - type: numeric-input
+            features_position: bottom
+          - type: tile
+            entity: input_number.fronius_limit_wh_nov
+            name: Nov
+            vertical: false
+            features:
+              - type: numeric-input
+            features_position: bottom
+          - type: tile
+            entity: input_number.fronius_limit_wh_dez
+            name: Dez
+            vertical: false
+            features:
+              - type: numeric-input
+            features_position: bottom
+      - type: grid
+        column_span: 2
+        cards:
+          - type: heading
+            heading: Reserve-/Ziel-SoC (%)
+            heading_style: title
+            icon: mdi:battery-lock
+          - type: tile
+            entity: input_number.fronius_reserve_soc_jan
+            name: Jan
+            vertical: false
+            features:
+              - type: numeric-input
+            features_position: bottom
+          - type: tile
+            entity: input_number.fronius_reserve_soc_feb
+            name: Feb
+            vertical: false
+            features:
+              - type: numeric-input
+            features_position: bottom
+          - type: tile
+            entity: input_number.fronius_reserve_soc_mar
+            name: Mär
+            vertical: false
+            features:
+              - type: numeric-input
+            features_position: bottom
+          - type: tile
+            entity: input_number.fronius_reserve_soc_apr
+            name: Apr
+            vertical: false
+            features:
+              - type: numeric-input
+            features_position: bottom
+          - type: tile
+            entity: input_number.fronius_reserve_soc_mai
+            name: Mai
+            vertical: false
+            features:
+              - type: numeric-input
+            features_position: bottom
+          - type: tile
+            entity: input_number.fronius_reserve_soc_jun
+            name: Jun
+            vertical: false
+            features:
+              - type: numeric-input
+            features_position: bottom
+          - type: tile
+            entity: input_number.fronius_reserve_soc_jul
+            name: Jul
+            vertical: false
+            features:
+              - type: numeric-input
+            features_position: bottom
+          - type: tile
+            entity: input_number.fronius_reserve_soc_aug
+            name: Aug
+            vertical: false
+            features:
+              - type: numeric-input
+            features_position: bottom
+          - type: tile
+            entity: input_number.fronius_reserve_soc_sep
+            name: Sep
+            vertical: false
+            features:
+              - type: numeric-input
+            features_position: bottom
+          - type: tile
+            entity: input_number.fronius_reserve_soc_okt
+            name: Okt
+            vertical: false
+            features:
+              - type: numeric-input
+            features_position: bottom
+          - type: tile
+            entity: input_number.fronius_reserve_soc_nov
+            name: Nov
+            vertical: false
+            features:
+              - type: numeric-input
+            features_position: bottom
+          - type: tile
+            entity: input_number.fronius_reserve_soc_dez
+            name: Dez
+            vertical: false
+            features:
+              - type: numeric-input
+            features_position: bottom
+      - type: grid
+        column_span: 2
+        cards:
+          - type: heading
+            heading: Start-SoC Netzladen (%)
+            heading_style: title
+            icon: mdi:battery-charging-low
+          - type: tile
+            entity: input_number.fronius_start_soc_jan
+            name: Jan
+            vertical: false
+            features:
+              - type: numeric-input
+            features_position: bottom
+          - type: tile
+            entity: input_number.fronius_start_soc_feb
+            name: Feb
+            vertical: false
+            features:
+              - type: numeric-input
+            features_position: bottom
+          - type: tile
+            entity: input_number.fronius_start_soc_mar
+            name: Mär
+            vertical: false
+            features:
+              - type: numeric-input
+            features_position: bottom
+          - type: tile
+            entity: input_number.fronius_start_soc_apr
+            name: Apr
+            vertical: false
+            features:
+              - type: numeric-input
+            features_position: bottom
+          - type: tile
+            entity: input_number.fronius_start_soc_mai
+            name: Mai
+            vertical: false
+            features:
+              - type: numeric-input
+            features_position: bottom
+          - type: tile
+            entity: input_number.fronius_start_soc_jun
+            name: Jun
+            vertical: false
+            features:
+              - type: numeric-input
+            features_position: bottom
+          - type: tile
+            entity: input_number.fronius_start_soc_jul
+            name: Jul
+            vertical: false
+            features:
+              - type: numeric-input
+            features_position: bottom
+          - type: tile
+            entity: input_number.fronius_start_soc_aug
+            name: Aug
+            vertical: false
+            features:
+              - type: numeric-input
+            features_position: bottom
+          - type: tile
+            entity: input_number.fronius_start_soc_sep
+            name: Sep
+            vertical: false
+            features:
+              - type: numeric-input
+            features_position: bottom
+          - type: tile
+            entity: input_number.fronius_start_soc_okt
+            name: Okt
+            vertical: false
+            features:
+              - type: numeric-input
+            features_position: bottom
+          - type: tile
+            entity: input_number.fronius_start_soc_nov
+            name: Nov
+            vertical: false
+            features:
+              - type: numeric-input
+            features_position: bottom
+          - type: tile
+            entity: input_number.fronius_start_soc_dez
+            name: Dez
+            vertical: false
+            features:
+              - type: numeric-input
+            features_position: bottom

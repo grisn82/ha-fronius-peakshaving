@@ -53,6 +53,8 @@ Spitzenlast-Tarife und Bezugsgrenzen sind als **Energie pro Intervall** (Wh pro 
 | Einrichtung und Prüfung | [einrichtung](docs/de/einrichtung.md) | [setup](docs/en/setup.md) |
 | Feinabstimmung und Fehlersuche | [feinabstimmung-fehlersuche](docs/de/feinabstimmung-fehlersuche.md) | [tuning-troubleshooting](docs/en/tuning-troubleshooting.md) |
 
+Ein optionales Saisonprofil (Limit und Reserve-SoC pro Monat, mit Diagramm-Dashboard) liegt in [`packages/fronius_saisonprofil.yaml`](packages/fronius_saisonprofil.yaml).
+
 Ein Dashboard zum Steuern und Testen liegt in [`dashboard/`](dashboard/fronius_peakshaving_dashboard.yaml).
 
 Eine kleine Simulation der Viertelstundenlogik liegt in [`simulation/sim_budget.py`](simulation/sim_budget.py).

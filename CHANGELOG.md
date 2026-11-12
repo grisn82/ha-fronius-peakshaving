@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.4.1 - 2026-11-12
+
+- Seasonal profile: the start SoC for grid charging (`fronius_start_soc`) can now be set per month as well (12 new helpers `fronius_start_soc_<month>`, extra chart line and input tiles).
+
+## 1.4.0 - 2026-11-12
+
+- New optional seasonal profile (`packages/fronius_saisonprofil.yaml`): max. import per 15 min and reserve SoC per month, applied at the start of each month, at Home Assistant start, when switched on and when the current month is edited; the target SoC is set to the reserve SoC. Dashboard with a 12-month chart (apexcharts-card) and input tiles: `dashboard/fronius_saisonprofil_dashboard.yaml`.
+
 ## 1.3.0 - 2026-11-11
 
 - The grid import rate for the demand estimate is now also taken from the integrated meter **power** (`sensor.fronius_netzbezug_leistung` → `sensor.fronius_netzbezug_energie`), like the battery energy. The stepped import counter caused a noisy `sensor.fronius_bedarf_energie`. The quarter-hour budget still uses the exact counter. The grid power sensor is now a required entity ID to adjust.

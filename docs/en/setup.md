@@ -84,7 +84,17 @@ Choose the reserve SoC from your peaks: a short peak of a few hundred Wh needs o
 
 [`packages/fronius_byd_soh.yaml`](../../packages/fronius_byd_soh.yaml) adds a REST sensor `sensor.byd_batterie_state_of_health` (battery SoH in %), shown on the dashboard. It reads the inverter's web interface once a day. Replace `[Gen24-IP]` with the IP address of your inverter. This interface is unofficial and undocumented and was tested with a BYD battery only; it may change with firmware updates, and the sensor stays empty if your battery does not report the SoH channel. The regulation does not depend on it.
 
-## 8. Switch on
+## 8. Optional: seasonal profile
+
+[`packages/fronius_saisonprofil.yaml`](../../packages/fronius_saisonprofil.yaml) lets you set the maximum import per 15 minutes and the reserve SoC **per month**. At the start of each month the values of that month are written to `fronius_bezug_limit_wh`, `fronius_reserve_soc` and `fronius_start_soc` (start SoC for grid charging), and the reserve SoC value also to `fronius_ziel_soc`. The profile is also applied when Home Assistant starts, when you switch it on, and when you change a value of the current month. While `input_boolean.fronius_saisonprofil` is off, nothing is written.
+
+1. Copy the file to `<config>/packages/` (it needs the main package) and restart Home Assistant.
+2. Add [`dashboard/fronius_saisonprofil_dashboard.yaml`](../../dashboard/fronius_saisonprofil_dashboard.yaml): a line chart of the 12 months (two Y axes, Wh and %) and an input tile for every month. The chart needs the custom card **apexcharts-card** (HACS). I wrote its options from the documentation and did not test them on a live system; if the card shows an error, check the option names in its README.
+3. Set all 36 monthly values first (the monthly helpers start at 100 Wh / 0 % until you set them), then switch the profile on.
+
+Manual changes of the three target helpers are overwritten at the next profile event. Grid charging starts below the lower of the start SoC and the target SoC, so keep the monthly start SoC at or below the monthly reserve/target SoC.
+
+## 9. Switch on
 
 1. Restart Home Assistant (or reload YAML configuration; the new `statistics` and `utility_meter` platforms need a restart).
 2. Watch `input_select.fronius_zustand` and the inverter mode with `Fronius: Bezugsbegrenzung aktiv` on.

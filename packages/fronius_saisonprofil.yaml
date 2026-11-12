@@ -1,0 +1,378 @@
+# ============================================================
+# OPTIONAL: seasonal profile (monthly values) for the Fronius peak shaving package
+# OPTIONAL: Saisonprofil (Monatswerte) für das Fronius-Peakshaving-Package
+# ------------------------------------------------------------
+# For each month you set three values:
+#   - max. grid import per 15 min (Wh)  -> input_number.fronius_bezug_limit_wh
+#   - reserve SoC (%)                   -> input_number.fronius_reserve_soc
+#                                          and the same value -> input_number.fronius_ziel_soc
+#   - start SoC for grid charging (%)   -> input_number.fronius_start_soc
+# The values of the current month are applied
+#   - on the 1st of each month at 00:00:05,
+#   - when Home Assistant starts (after 30 s),
+#   - when you switch the profile on,
+#   - when you change a value of the CURRENT month.
+# The profile only writes the three target helpers while input_boolean.fronius_saisonprofil
+# is on. Manual changes of the three helpers are overwritten at the next of these events.
+#
+# Needs packages/fronius_peakshaving.yaml (target helpers). No entity IDs to adjust.
+# Fill in all 36 monthly values BEFORE you switch the profile on: the monthly helpers
+# start at their minimum (100 Wh / 0 %) until you set them. They keep their values over restarts.
+# Dashboard with chart and inputs: dashboard/fronius_saisonprofil_dashboard.yaml
+# Note: grid charging starts below the lower of start SoC and target SoC, so keep the monthly
+# start SoC at or below the monthly reserve/target SoC.
+# ============================================================
+input_boolean:
+  fronius_saisonprofil:
+    name: "Fronius: Saisonprofil aktiv"
+    icon: mdi:calendar-sync
+
+input_number:
+  fronius_limit_wh_jan:
+    name: "Fronius Profil Jan: Max. Bezug pro 15 min"
+    min: 100
+    max: 5000
+    step: 50
+    unit_of_measurement: Wh
+  fronius_limit_wh_feb:
+    name: "Fronius Profil Feb: Max. Bezug pro 15 min"
+    min: 100
+    max: 5000
+    step: 50
+    unit_of_measurement: Wh
+  fronius_limit_wh_mar:
+    name: "Fronius Profil Mär: Max. Bezug pro 15 min"
+    min: 100
+    max: 5000
+    step: 50
+    unit_of_measurement: Wh
+  fronius_limit_wh_apr:
+    name: "Fronius Profil Apr: Max. Bezug pro 15 min"
+    min: 100
+    max: 5000
+    step: 50
+    unit_of_measurement: Wh
+  fronius_limit_wh_mai:
+    name: "Fronius Profil Mai: Max. Bezug pro 15 min"
+    min: 100
+    max: 5000
+    step: 50
+    unit_of_measurement: Wh
+  fronius_limit_wh_jun:
+    name: "Fronius Profil Jun: Max. Bezug pro 15 min"
+    min: 100
+    max: 5000
+    step: 50
+    unit_of_measurement: Wh
+  fronius_limit_wh_jul:
+    name: "Fronius Profil Jul: Max. Bezug pro 15 min"
+    min: 100
+    max: 5000
+    step: 50
+    unit_of_measurement: Wh
+  fronius_limit_wh_aug:
+    name: "Fronius Profil Aug: Max. Bezug pro 15 min"
+    min: 100
+    max: 5000
+    step: 50
+    unit_of_measurement: Wh
+  fronius_limit_wh_sep:
+    name: "Fronius Profil Sep: Max. Bezug pro 15 min"
+    min: 100
+    max: 5000
+    step: 50
+    unit_of_measurement: Wh
+  fronius_limit_wh_okt:
+    name: "Fronius Profil Okt: Max. Bezug pro 15 min"
+    min: 100
+    max: 5000
+    step: 50
+    unit_of_measurement: Wh
+  fronius_limit_wh_nov:
+    name: "Fronius Profil Nov: Max. Bezug pro 15 min"
+    min: 100
+    max: 5000
+    step: 50
+    unit_of_measurement: Wh
+  fronius_limit_wh_dez:
+    name: "Fronius Profil Dez: Max. Bezug pro 15 min"
+    min: 100
+    max: 5000
+    step: 50
+    unit_of_measurement: Wh
+  fronius_reserve_soc_jan:
+    name: "Fronius Profil Jan: Reserve-/Ziel-SoC"
+    min: 0
+    max: 100
+    step: 1
+    unit_of_measurement: "%"
+  fronius_reserve_soc_feb:
+    name: "Fronius Profil Feb: Reserve-/Ziel-SoC"
+    min: 0
+    max: 100
+    step: 1
+    unit_of_measurement: "%"
+  fronius_reserve_soc_mar:
+    name: "Fronius Profil Mär: Reserve-/Ziel-SoC"
+    min: 0
+    max: 100
+    step: 1
+    unit_of_measurement: "%"
+  fronius_reserve_soc_apr:
+    name: "Fronius Profil Apr: Reserve-/Ziel-SoC"
+    min: 0
+    max: 100
+    step: 1
+    unit_of_measurement: "%"
+  fronius_reserve_soc_mai:
+    name: "Fronius Profil Mai: Reserve-/Ziel-SoC"
+    min: 0
+    max: 100
+    step: 1
+    unit_of_measurement: "%"
+  fronius_reserve_soc_jun:
+    name: "Fronius Profil Jun: Reserve-/Ziel-SoC"
+    min: 0
+    max: 100
+    step: 1
+    unit_of_measurement: "%"
+  fronius_reserve_soc_jul:
+    name: "Fronius Profil Jul: Reserve-/Ziel-SoC"
+    min: 0
+    max: 100
+    step: 1
+    unit_of_measurement: "%"
+  fronius_reserve_soc_aug:
+    name: "Fronius Profil Aug: Reserve-/Ziel-SoC"
+    min: 0
+    max: 100
+    step: 1
+    unit_of_measurement: "%"
+  fronius_reserve_soc_sep:
+    name: "Fronius Profil Sep: Reserve-/Ziel-SoC"
+    min: 0
+    max: 100
+    step: 1
+    unit_of_measurement: "%"
+  fronius_reserve_soc_okt:
+    name: "Fronius Profil Okt: Reserve-/Ziel-SoC"
+    min: 0
+    max: 100
+    step: 1
+    unit_of_measurement: "%"
+  fronius_reserve_soc_nov:
+    name: "Fronius Profil Nov: Reserve-/Ziel-SoC"
+    min: 0
+    max: 100
+    step: 1
+    unit_of_measurement: "%"
+  fronius_reserve_soc_dez:
+    name: "Fronius Profil Dez: Reserve-/Ziel-SoC"
+    min: 0
+    max: 100
+    step: 1
+    unit_of_measurement: "%"
+  fronius_start_soc_jan:
+    name: "Fronius Profil Jan: Start-SoC Netzladen"
+    min: 0
+    max: 100
+    step: 1
+    unit_of_measurement: "%"
+  fronius_start_soc_feb:
+    name: "Fronius Profil Feb: Start-SoC Netzladen"
+    min: 0
+    max: 100
+    step: 1
+    unit_of_measurement: "%"
+  fronius_start_soc_mar:
+    name: "Fronius Profil Mär: Start-SoC Netzladen"
+    min: 0
+    max: 100
+    step: 1
+    unit_of_measurement: "%"
+  fronius_start_soc_apr:
+    name: "Fronius Profil Apr: Start-SoC Netzladen"
+    min: 0
+    max: 100
+    step: 1
+    unit_of_measurement: "%"
+  fronius_start_soc_mai:
+    name: "Fronius Profil Mai: Start-SoC Netzladen"
+    min: 0
+    max: 100
+    step: 1
+    unit_of_measurement: "%"
+  fronius_start_soc_jun:
+    name: "Fronius Profil Jun: Start-SoC Netzladen"
+    min: 0
+    max: 100
+    step: 1
+    unit_of_measurement: "%"
+  fronius_start_soc_jul:
+    name: "Fronius Profil Jul: Start-SoC Netzladen"
+    min: 0
+    max: 100
+    step: 1
+    unit_of_measurement: "%"
+  fronius_start_soc_aug:
+    name: "Fronius Profil Aug: Start-SoC Netzladen"
+    min: 0
+    max: 100
+    step: 1
+    unit_of_measurement: "%"
+  fronius_start_soc_sep:
+    name: "Fronius Profil Sep: Start-SoC Netzladen"
+    min: 0
+    max: 100
+    step: 1
+    unit_of_measurement: "%"
+  fronius_start_soc_okt:
+    name: "Fronius Profil Okt: Start-SoC Netzladen"
+    min: 0
+    max: 100
+    step: 1
+    unit_of_measurement: "%"
+  fronius_start_soc_nov:
+    name: "Fronius Profil Nov: Start-SoC Netzladen"
+    min: 0
+    max: 100
+    step: 1
+    unit_of_measurement: "%"
+  fronius_start_soc_dez:
+    name: "Fronius Profil Dez: Start-SoC Netzladen"
+    min: 0
+    max: 100
+    step: 1
+    unit_of_measurement: "%"
+
+# Values of all months as attributes (data for the chart) and the current month's limit as state
+template:
+  - sensor:
+      - name: "Fronius Saisonprofil"
+        unique_id: fronius_saisonprofil
+        unit_of_measurement: Wh
+        state: >-
+          {% set monate = ['jan', 'feb', 'mar', 'apr', 'mai', 'jun', 'jul', 'aug', 'sep', 'okt', 'nov', 'dez'] %}
+          {{ states('input_number.fronius_limit_wh_' ~ monate[now().month - 1]) | float(0) }}
+        attributes:
+          monat: >-
+            {% set monate = ['jan', 'feb', 'mar', 'apr', 'mai', 'jun', 'jul', 'aug', 'sep', 'okt', 'nov', 'dez'] %}
+            {{ monate[now().month - 1] }}
+          limit_wh: >-
+            {%- set ns = namespace(l=[]) -%}
+            {%- for m in ['jan', 'feb', 'mar', 'apr', 'mai', 'jun', 'jul', 'aug', 'sep', 'okt', 'nov', 'dez'] %}
+              {%- set ns.l = ns.l + [states('input_number.fronius_limit_wh_' ~ m) | float(0)] -%}
+            {%- endfor -%}
+            {{ ns.l }}
+          reserve_soc: >-
+            {%- set ns = namespace(l=[]) -%}
+            {%- for m in ['jan', 'feb', 'mar', 'apr', 'mai', 'jun', 'jul', 'aug', 'sep', 'okt', 'nov', 'dez'] %}
+              {%- set ns.l = ns.l + [states('input_number.fronius_reserve_soc_' ~ m) | float(0)] -%}
+            {%- endfor -%}
+            {{ ns.l }}
+
+          start_soc: >-
+            {%- set ns = namespace(l=[]) -%}
+            {%- for m in ['jan', 'feb', 'mar', 'apr', 'mai', 'jun', 'jul', 'aug', 'sep', 'okt', 'nov', 'dez'] %}
+              {%- set ns.l = ns.l + [states('input_number.fronius_start_soc_' ~ m) | float(0)] -%}
+            {%- endfor -%}
+            {{ ns.l }}
+automation:
+  - id: fronius_saisonprofil_anwenden
+    alias: "Fronius: Saisonprofil anwenden"
+    mode: restart
+    triggers:
+      - trigger: time
+        at: "00:00:05"
+        id: monatsanfang
+      - trigger: homeassistant
+        event: start
+        id: start
+      - trigger: state
+        entity_id: input_boolean.fronius_saisonprofil
+        to: "on"
+        id: aktiviert
+      - trigger: state
+        entity_id:
+          - input_number.fronius_limit_wh_jan
+          - input_number.fronius_limit_wh_feb
+          - input_number.fronius_limit_wh_mar
+          - input_number.fronius_limit_wh_apr
+          - input_number.fronius_limit_wh_mai
+          - input_number.fronius_limit_wh_jun
+          - input_number.fronius_limit_wh_jul
+          - input_number.fronius_limit_wh_aug
+          - input_number.fronius_limit_wh_sep
+          - input_number.fronius_limit_wh_okt
+          - input_number.fronius_limit_wh_nov
+          - input_number.fronius_limit_wh_dez
+          - input_number.fronius_reserve_soc_jan
+          - input_number.fronius_reserve_soc_feb
+          - input_number.fronius_reserve_soc_mar
+          - input_number.fronius_reserve_soc_apr
+          - input_number.fronius_reserve_soc_mai
+          - input_number.fronius_reserve_soc_jun
+          - input_number.fronius_reserve_soc_jul
+          - input_number.fronius_reserve_soc_aug
+          - input_number.fronius_reserve_soc_sep
+          - input_number.fronius_reserve_soc_okt
+          - input_number.fronius_reserve_soc_nov
+          - input_number.fronius_reserve_soc_dez
+          - input_number.fronius_start_soc_jan
+          - input_number.fronius_start_soc_feb
+          - input_number.fronius_start_soc_mar
+          - input_number.fronius_start_soc_apr
+          - input_number.fronius_start_soc_mai
+          - input_number.fronius_start_soc_jun
+          - input_number.fronius_start_soc_jul
+          - input_number.fronius_start_soc_aug
+          - input_number.fronius_start_soc_sep
+          - input_number.fronius_start_soc_okt
+          - input_number.fronius_start_soc_nov
+          - input_number.fronius_start_soc_dez
+        id: geaendert
+    variables:
+      monate: ['jan', 'feb', 'mar', 'apr', 'mai', 'jun', 'jul', 'aug', 'sep', 'okt', 'nov', 'dez']
+      mon: "{{ monate[now().month - 1] }}"
+      ent_limit: "{{ 'input_number.fronius_limit_wh_' ~ mon }}"
+      ent_soc: "{{ 'input_number.fronius_reserve_soc_' ~ mon }}"
+      ent_start: "{{ 'input_number.fronius_start_soc_' ~ mon }}"
+    actions:
+      # after a restart wait until the entities are restored
+      - if:
+          - condition: template
+            value_template: "{{ trigger.id == 'start' }}"
+        then:
+          - delay: "00:00:30"
+      - condition: state
+        entity_id: input_boolean.fronius_saisonprofil
+        state: "on"
+      # the time trigger only counts on the 1st of the month
+      - condition: template
+        value_template: "{{ trigger.id != 'monatsanfang' or now().day == 1 }}"
+      # a changed value only counts if it belongs to the current month
+      - condition: template
+        value_template: "{{ trigger.id != 'geaendert' or trigger.entity_id.endswith('_' ~ mon) }}"
+      # only with valid values
+      - condition: template
+        value_template: "{{ has_value(ent_limit) and has_value(ent_soc) and has_value(ent_start) }}"
+      - action: input_number.set_value
+        target:
+          entity_id: input_number.fronius_bezug_limit_wh
+        data:
+          value: "{{ states(ent_limit) | float }}"
+      - action: input_number.set_value
+        target:
+          entity_id: input_number.fronius_reserve_soc
+        data:
+          value: "{{ states(ent_soc) | float }}"
+      - action: input_number.set_value
+        target:
+          entity_id: input_number.fronius_ziel_soc
+        data:
+          value: "{{ states(ent_soc) | float }}"
+      - action: input_number.set_value
+        target:
+          entity_id: input_number.fronius_start_soc
+        data:
+          value: "{{ states(ent_start) | float }}"

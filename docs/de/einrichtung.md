@@ -84,7 +84,17 @@ Den Reserve-SoC nach den eigenen Spitzen wählen: Eine kurze Spitze von einigen 
 
 [`packages/fronius_byd_soh.yaml`](../../packages/fronius_byd_soh.yaml) ergänzt einen REST-Sensor `sensor.byd_batterie_state_of_health` (SoH der Batterie in %), der im Dashboard angezeigt wird. Er liest einmal am Tag die Weboberfläche des Wechselrichters. `[Gen24-IP]` durch die IP-Adresse des Wechselrichters ersetzen. Diese Schnittstelle ist inoffiziell und undokumentiert und wurde nur mit einer BYD-Batterie getestet; sie kann sich mit Firmware-Updates ändern, und der Sensor bleibt leer, wenn die Batterie den SoH-Kanal nicht meldet. Die Regelung hängt nicht davon ab.
 
-## 8. Einschalten
+## 8. Optional: Saisonprofil
+
+[`packages/fronius_saisonprofil.yaml`](../../packages/fronius_saisonprofil.yaml) erlaubt es, den maximalen Bezug pro 15 Minuten und den Reserve-SoC **pro Monat** einzustellen. Am Monatsanfang werden die Werte des Monats nach `fronius_bezug_limit_wh`, `fronius_reserve_soc` und `fronius_start_soc` (Start-SoC für das Netzladen) geschrieben, der Reserve-SoC-Wert zusätzlich nach `fronius_ziel_soc`. Das Profil wird auch beim Start von Home Assistant angewendet, beim Einschalten und wenn du einen Wert des aktuellen Monats änderst. Solange `input_boolean.fronius_saisonprofil` aus ist, wird nichts geschrieben.
+
+1. Die Datei nach `<config>/packages/` kopieren (sie braucht das Haupt-Package) und Home Assistant neu starten.
+2. [`dashboard/fronius_saisonprofil_dashboard.yaml`](../../dashboard/fronius_saisonprofil_dashboard.yaml) hinzufügen: ein Liniendiagramm der 12 Monate (zwei Y-Achsen, Wh und %) und eine Eingabekachel pro Monat. Das Diagramm braucht die Zusatzkarte **apexcharts-card** (HACS). Ich habe ihre Optionen aus der Dokumentation geschrieben und nicht auf einem laufenden System getestet; zeigt die Karte einen Fehler, die Optionsnamen in ihrer README prüfen.
+3. Zuerst alle 36 Monatswerte einstellen (die Monatshelfer stehen bis dahin auf 100 Wh / 0 %), danach das Profil einschalten.
+
+Manuelle Änderungen der drei Zielhelfer werden beim nächsten Profilereignis überschrieben. Netzladen startet unter dem niedrigeren von Start-SoC und Ziel-SoC; der Monats-Start-SoC sollte also höchstens so hoch sein wie der Monats-Reserve-/Ziel-SoC.
+
+## 9. Einschalten
 
 1. Home Assistant neu starten (die neuen `statistics`- und `utility_meter`-Plattformen brauchen einen Neustart).
 2. Mit eingeschaltetem `Fronius: Bezugsbegrenzung aktiv` `input_select.fronius_zustand` und den Wechselrichtermodus beobachten.
